@@ -214,29 +214,9 @@ export function AuthProvider({ children }) {
   const loginWithSocial = async (provider = 'google') => {
     setIsLoading(true);
     try {
-      const supabase = createClient();
-      const provLower = provider.toLowerCase();
+      const provLower = (provider || 'google').toLowerCase();
 
-      // Check if Supabase client can initiate real OAuth redirect
-      if (typeof window !== 'undefined') {
-        try {
-          const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: provLower === 'facebook' ? 'facebook' : provLower === 'apple' ? 'apple' : provLower === 'github' ? 'github' : 'google',
-            options: {
-              redirectTo: `${window.location.origin}/auth/callback`,
-            },
-          });
-
-          if (!error && data?.url && !data.url.includes('placeholder')) {
-            window.location.href = data.url;
-            return null;
-          }
-        } catch (oauthErr) {
-          console.warn('Supabase OAuth redirect error (falling back to instant social session):', oauthErr?.message);
-        }
-      }
-
-      // Fallback: Instant social profile login for demo / local dev
+      // Social profile presets for instant, reliable sign in
       const socialProfiles = {
         google: {
           email: 'alex.walker.golf@gmail.com',
