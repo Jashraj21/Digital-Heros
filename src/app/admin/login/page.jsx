@@ -7,12 +7,12 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ROUTES } from '@/constants/routes';
-import { ShieldCheck, ArrowRight, AlertCircle, KeyRound, Sparkles, UserCheck } from 'lucide-react';
+import { ShieldCheck, ArrowRight, AlertCircle, Sparkles, KeyRound } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const { login, loginAsDemo } = useAuth();
-  const [email, setEmail] = useState('admin@digitalheroes.co.in');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('admin@admin.in');
+  const [password, setPassword] = useState('password');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -69,9 +69,9 @@ export default function AdminLoginPage() {
             <div>
               <div className="flex items-center gap-1.5 text-xs font-bold text-white mb-0.5">
                 <ShieldCheck className="w-4 h-4 text-cyan-400" />
-                <span>Sign In as Superadmin (David Sterling)</span>
+                <span>Sign In as Superadmin</span>
               </div>
-              <p className="text-[11px] text-cyan-300/80">admin@digitalheroes.co.in • Full Authority</p>
+              <p className="text-[11px] text-cyan-300/80">admin@admin.in • Password: password</p>
             </div>
             <ArrowRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-1 transition-transform" />
           </button>
@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@digitalheroes.co.in"
+                placeholder="admin@admin.in"
                 className="w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-cyan-400"
               />
             </div>
@@ -110,7 +110,7 @@ export default function AdminLoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="password"
                 className="w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-cyan-400"
               />
             </div>

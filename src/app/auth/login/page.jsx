@@ -96,7 +96,7 @@ export default function LoginPage() {
                 <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Admin Demo</span>
               </div>
-              <p className="text-[10px] text-slate-400">admin@digitalheroes.co.in</p>
+              <p className="text-[10px] text-cyan-300">admin@admin.in (Pass: password)</p>
             </button>
           </div>
         </Card>

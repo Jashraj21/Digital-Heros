@@ -9,6 +9,15 @@ import { processWinnerVerificationAction } from '../winners/verification-service
 const INITIAL_USERS = [
   {
     id: 'user-admin',
+    email: 'admin@admin.in',
+    fullName: 'David Sterling (Admin)',
+    role: 'admin',
+    phone: '+91 98765 43210',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2025-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'user-admin-dh',
     email: 'admin@digitalheroes.co.in',
     fullName: 'David Sterling (Admin)',
     role: 'admin',

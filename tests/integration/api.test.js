@@ -5,13 +5,17 @@ import { DRAW_TYPES, PRIZE_TIERS } from '@/constants/draw';
 
 describe('End-to-End System & API Integration Tests', () => {
   it('verifies initial seed data is loaded with admin, player, charities, and past draws', () => {
-    const admin = store.getUserByEmail('admin@digitalheroes.co.in');
+    const admin = store.getUserByEmail('admin@admin.in');
+    const adminDh = store.getUserByEmail('admin@digitalheroes.co.in');
     const player = store.getUserByEmail('player@digitalheroes.co.in');
     const charities = store.getAllCharities();
     const draws = store.getAllDraws();
 
     expect(admin).toBeDefined();
     expect(admin.role).toBe('admin');
+
+    expect(adminDh).toBeDefined();
+    expect(adminDh.role).toBe('admin');
 
     expect(player).toBeDefined();
     expect(player.role).toBe('user');

@@ -178,7 +178,7 @@ export function AuthProvider({ children }) {
     if (role === 'admin') {
       demoUser = {
         id: 'user-admin',
-        email: 'admin@digitalheroes.co.in',
+        email: 'admin@admin.in',
         fullName: 'David Sterling (Admin)',
         role: 'admin',
         avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
