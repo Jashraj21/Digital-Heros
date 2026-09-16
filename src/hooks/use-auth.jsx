@@ -227,7 +227,7 @@ export function AuthProvider({ children }) {
             },
           });
 
-          if (!error && data?.url) {
+          if (!error && data?.url && !data.url.includes('placeholder')) {
             window.location.href = data.url;
             return null;
           }
