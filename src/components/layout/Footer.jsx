@@ -50,6 +50,12 @@ export function Footer() {
                   Membership Plans
                 </Link>
               </li>
+              <li>
+                <Link href={ROUTES.ADMIN_LOGIN} className="text-cyan-400/80 hover:text-cyan-300 transition-colors flex items-center gap-1 font-semibold">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Admin Console</span>
+                </Link>
+              </li>
             </ul>
           </div>
 

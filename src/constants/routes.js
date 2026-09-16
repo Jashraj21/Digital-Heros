@@ -19,6 +19,7 @@ export const ROUTES = {
 
   // Admin
   ADMIN: '/admin',
+  ADMIN_LOGIN: '/admin/login',
   ADMIN_USERS: '/admin/users',
   ADMIN_SUBSCRIPTIONS: '/admin/subscriptions',
   ADMIN_DRAWS: '/admin/draws',
