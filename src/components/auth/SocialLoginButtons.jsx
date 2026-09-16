@@ -21,14 +21,15 @@ export function SocialLoginButtons({ onError, onSelectProvider, mode = 'login' }
 
     try {
       const user = await loginWithSocial(provider);
-      if (user.role === 'admin') {
-        router.push(ROUTES.ADMIN);
-      } else {
-        router.push(ROUTES.DASHBOARD);
+      if (user) {
+        if (user.role === 'admin') {
+          router.push(ROUTES.ADMIN);
+        } else {
+          router.push(ROUTES.DASHBOARD);
+        }
       }
     } catch (err) {
       if (onError) onError(err.message || `Failed to sign in with ${provider}`);
-    } finally {
       setLoadingProvider(null);
     }
   };
