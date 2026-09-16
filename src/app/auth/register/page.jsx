@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -13,7 +12,6 @@ import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { PhoneLoginForm } from '@/components/auth/PhoneLoginForm';
 
 export default function RegisterPage() {
-  const router = useRouter();
   const { signup } = useAuth();
   const [step, setStep] = useState(1); // 1: Info, 2: Charity & Plan
   const [regMethod, setRegMethod] = useState('email'); // 'email' | 'phone'
@@ -208,7 +206,7 @@ export default function RegisterPage() {
               </div>
             )}
 
-            {/* STEP 2: Charity & Plan Selection (§ 04 & § 08.1) */}
+            {/* STEP 2: Charity & Plan Selection */}
             {step === 2 && (
               <div className="space-y-6 animate-in fade-in">
                 {/* Membership Plan Choice */}
@@ -248,7 +246,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Charity Selection (§ 08.1) */}
+                {/* Charity Selection */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
                     Choose Your Grassroots Charity Recipient (§ 08.1)
@@ -277,7 +275,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Contribution Slider (§ 08.1: Minimum 10%, user may voluntarily increase) */}
+                {/* Contribution Slider */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">

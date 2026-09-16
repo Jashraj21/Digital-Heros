@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -13,7 +12,6 @@ import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { PhoneLoginForm } from '@/components/auth/PhoneLoginForm';
 
 export default function LoginPage() {
-  const router = useRouter();
   const { login, loginAsDemo } = useAuth();
   const [authMethod, setAuthMethod] = useState('email'); // 'email' | 'phone'
   const [email, setEmail] = useState('');
@@ -62,7 +60,7 @@ export default function LoginPage() {
             </span>
           </Link>
           <h2 className="text-2xl font-black text-white">Welcome Back</h2>
-          <p className="text-xs text-slate-400">Sign in using Google, Apple, Facebook, Phone OTP, or Email</p>
+          <p className="text-xs text-slate-400">Sign in with Google, Apple, Facebook, Phone OTP, or Email</p>
         </div>
 
         {/* 1-Click Fast Evaluator Switcher Card */}
@@ -199,4 +197,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
