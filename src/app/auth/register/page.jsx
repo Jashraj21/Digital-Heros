@@ -54,7 +54,7 @@ export default function RegisterPage() {
         charityId: selectedCharityId,
         contributionPercentage,
       });
-      router.push(ROUTES.DASHBOARD);
+      window.location.href = ROUTES.DASHBOARD;
     } catch (err) {
       setErrorMessage(err.message || 'Registration failed.');
     } finally {

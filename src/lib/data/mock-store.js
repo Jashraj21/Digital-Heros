@@ -407,7 +407,102 @@ class DigitalHeroesStore {
       });
     }
 
+    // Seed 5 rolling scores for new registered user
+    const defaultScores = [
+      { score: 38, playedAt: '2026-03-14', courseName: 'Delhi Golf Club', notes: 'Round 1' },
+      { score: 41, playedAt: '2026-03-10', courseName: 'Royal Calcutta Golf Club', notes: 'Round 2' },
+      { score: 36, playedAt: '2026-03-05', courseName: 'Karnataka Golf Association', notes: 'Round 3' },
+      { score: 40, playedAt: '2026-02-28', courseName: 'Bombay Presidency Golf Club', notes: 'Round 4' },
+      { score: 37, playedAt: '2026-02-20', courseName: 'DLF Golf & Country Club', notes: 'Round 5' },
+    ];
+    defaultScores.forEach((s) => this.addScore(newUser.id, s));
+
     return newUser;
+  }
+
+  findOrCreateEmailUser({ email, fullName, password, role }) {
+    const cleanEmail = (email || '').trim().toLowerCase();
+    let user = this.getUserByEmail(cleanEmail);
+    if (!user) {
+      const namePart = cleanEmail.split('@')[0].replace(/[._-]/g, ' ');
+      const formattedName = fullName || (namePart.charAt(0).toUpperCase() + namePart.slice(1)) || 'Golfer Hero';
+      user = {
+        id: `user-${Date.now()}`,
+        email: cleanEmail,
+        fullName: formattedName,
+        role: role || (cleanEmail.includes('admin') ? 'admin' : 'user'),
+        phone: '+91 98765 43210',
+        avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanEmail)}`,
+        authProvider: 'email',
+        createdAt: new Date().toISOString(),
+      };
+      this.users.push(user);
+
+      // Create active subscription in INR
+      const newSub = {
+        id: `sub-${Date.now()}`,
+        userId: user.id,
+        plan: 'monthly',
+        status: 'active',
+        priceAmount: 1999.0,
+        currency: 'INR',
+        currentPeriodStart: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false,
+        createdAt: new Date().toISOString(),
+      };
+      this.subscriptions.push(newSub);
+
+      // Default charity preference
+      this.preferences.push({
+        userId: user.id,
+        charityId: 'charity-1',
+        contributionPercentage: 15,
+        updatedAt: new Date().toISOString(),
+      });
+
+      // Seed 5 rolling scores for immediate draw eligibility
+      const defaultScores = [
+        { score: 38, playedAt: '2026-03-14', courseName: 'Delhi Golf Club', notes: 'Round 1' },
+        { score: 41, playedAt: '2026-03-10', courseName: 'Royal Calcutta Golf Club', notes: 'Round 2' },
+        { score: 36, playedAt: '2026-03-05', courseName: 'Karnataka Golf Association', notes: 'Round 3' },
+        { score: 40, playedAt: '2026-02-28', courseName: 'Bombay Presidency Golf Club', notes: 'Round 4' },
+        { score: 37, playedAt: '2026-02-20', courseName: 'DLF Golf & Country Club', notes: 'Round 5' },
+      ];
+      defaultScores.forEach((s) => this.addScore(user.id, s));
+    }
+
+    // Ensure 5 rolling scores exist
+    const existingScores = this.getUserScores(user.id);
+    if (!existingScores.activeScores || existingScores.activeScores.length < 5) {
+      const defaultScores = [
+        { score: 38, playedAt: '2026-03-14', courseName: 'Delhi Golf Club', notes: 'Round 1' },
+        { score: 41, playedAt: '2026-03-10', courseName: 'Royal Calcutta Golf Club', notes: 'Round 2' },
+        { score: 36, playedAt: '2026-03-05', courseName: 'Karnataka Golf Association', notes: 'Round 3' },
+        { score: 40, playedAt: '2026-02-28', courseName: 'Bombay Presidency Golf Club', notes: 'Round 4' },
+        { score: 37, playedAt: '2026-02-20', courseName: 'DLF Golf & Country Club', notes: 'Round 5' },
+      ];
+      defaultScores.forEach((s) => this.addScore(user.id, s));
+    }
+
+    let subscription = this.getSubscription(user.id);
+    if (!subscription) {
+      subscription = {
+        id: `sub-${Date.now()}`,
+        userId: user.id,
+        plan: 'monthly',
+        status: 'active',
+        priceAmount: 1999.0,
+        currency: 'INR',
+        currentPeriodStart: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false,
+        createdAt: new Date().toISOString(),
+      };
+      this.subscriptions.push(subscription);
+    }
+
+    return { user, subscription };
   }
 
   findOrCreateSocialUser({ provider, email, fullName, avatarUrl }) {

@@ -54,9 +54,9 @@ export function PhoneLoginForm({ onError, mode = 'login' }) {
     try {
       const user = await verifyPhoneOtp(fullPhoneNumber, otpCode.trim(), fullName);
       if (user.role === 'admin') {
-        router.push(ROUTES.ADMIN);
+        window.location.href = ROUTES.ADMIN;
       } else {
-        router.push(ROUTES.DASHBOARD);
+        window.location.href = ROUTES.DASHBOARD;
       }
     } catch (err) {
       if (onError) onError(err.message || 'Invalid or expired OTP code');

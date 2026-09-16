@@ -154,4 +154,25 @@ describe('End-to-End System & API Integration Tests', () => {
     expect(scores.activeScores).toHaveLength(5);
     expect(metrics.isEligibleForDraw).toBe(true);
   });
+
+  it('performs email auto-provisioning login with guaranteed 5 rolling scores and active INR subscription', () => {
+    const { user, subscription } = store.findOrCreateEmailUser({
+      email: 'new.champion@example.com',
+      fullName: 'New Champion Golfer',
+      password: 'mypassword',
+    });
+
+    expect(user).toBeDefined();
+    expect(user.email).toBe('new.champion@example.com');
+    expect(subscription).toBeDefined();
+    expect(subscription.status).toBe('active');
+    expect(subscription.currency).toBe('INR');
+
+    // Verify 5 rolling scores are initialized
+    const scores = store.getUserScores(user.id);
+    const metrics = calculateScoreMetrics(scores.activeScores);
+    expect(scores.activeScores).toHaveLength(5);
+    expect(metrics.isEligibleForDraw).toBe(true);
+  });
 });
+

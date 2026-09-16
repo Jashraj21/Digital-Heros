@@ -23,9 +23,9 @@ export function SocialLoginButtons({ onError, onSelectProvider, mode = 'login' }
       const user = await loginWithSocial(provider);
       if (user) {
         if (user.role === 'admin') {
-          router.push(ROUTES.ADMIN);
+          window.location.href = ROUTES.ADMIN;
         } else {
-          router.push(ROUTES.DASHBOARD);
+          window.location.href = ROUTES.DASHBOARD;
         }
       }
     } catch (err) {

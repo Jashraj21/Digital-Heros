@@ -28,9 +28,9 @@ export default function LoginPage() {
     try {
       const user = await login(email, password);
       if (user.role === 'admin') {
-        router.push(ROUTES.ADMIN);
+        window.location.href = ROUTES.ADMIN;
       } else {
-        router.push(ROUTES.DASHBOARD);
+        window.location.href = ROUTES.DASHBOARD;
       }
     } catch (err) {
       setErrorMessage(err.message || 'Login failed.');
@@ -42,9 +42,9 @@ export default function LoginPage() {
   const handleDemoClick = (role) => {
     const user = loginAsDemo(role);
     if (user.role === 'admin') {
-      router.push(ROUTES.ADMIN);
+      window.location.href = ROUTES.ADMIN;
     } else {
-      router.push(ROUTES.DASHBOARD);
+      window.location.href = ROUTES.DASHBOARD;
     }
   };
 
