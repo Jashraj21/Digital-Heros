@@ -6,10 +6,10 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/Ca
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { formatCurrency } from '@/lib/utils/formatters';
-import { User, CreditCard, ShieldCheck, Sparkles, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react';
+import { User, CreditCard, ShieldCheck, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, LogOut } from 'lucide-react';
 
 export default function SettingsPage() {
-  const { user, subscription, refreshSession } = useAuth();
+  const { user, subscription, refreshSession, logout } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -115,6 +115,18 @@ export default function SettingsPage() {
               {user?.role === 'admin' ? 'Administrator' : 'Registered Subscriber'}
             </Badge>
           </div>
+        </div>
+
+        <div className="pt-6 mt-6 border-t border-slate-800 flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={logout}
+            className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 gap-1.5"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out of Account</span>
+          </Button>
         </div>
       </Card>
 

@@ -24,13 +24,15 @@ export function AuthProvider({ children }) {
   // Initialize from localStorage or default to player demo
   useEffect(() => {
     try {
+      const isSignedOut = localStorage.getItem('dh_signed_out') === 'true';
       const storedUser = localStorage.getItem('dh_user');
       const storedSub = localStorage.getItem('dh_sub');
+
       if (storedUser) {
         setUser(JSON.parse(storedUser));
         if (storedSub) setSubscription(JSON.parse(storedSub));
-      } else {
-        // Default demo session for fast review
+      } else if (!isSignedOut) {
+        // Default demo session for initial visit
         const defaultUser = {
           id: 'user-player',
           email: 'player@digitalheroes.co.in',
@@ -51,6 +53,9 @@ export function AuthProvider({ children }) {
         setSubscription(defaultSub);
         localStorage.setItem('dh_user', JSON.stringify(defaultUser));
         localStorage.setItem('dh_sub', JSON.stringify(defaultSub));
+      } else {
+        setUser(null);
+        setSubscription(null);
       }
     } catch (e) {
       console.error('Error loading session:', e);
@@ -72,6 +77,7 @@ export function AuthProvider({ children }) {
 
       setUser(data.user);
       setSubscription(data.subscription);
+      localStorage.removeItem('dh_signed_out');
       localStorage.setItem('dh_user', JSON.stringify(data.user));
       if (data.subscription) {
         localStorage.setItem('dh_sub', JSON.stringify(data.subscription));
@@ -120,6 +126,7 @@ export function AuthProvider({ children }) {
 
     setUser(demoUser);
     setSubscription(demoSub);
+    localStorage.removeItem('dh_signed_out');
     localStorage.setItem('dh_user', JSON.stringify(demoUser));
     localStorage.setItem('dh_sub', JSON.stringify(demoSub));
     return demoUser;
@@ -167,6 +174,7 @@ export function AuthProvider({ children }) {
 
       setUser(data.user);
       setSubscription(data.subscription);
+      localStorage.removeItem('dh_signed_out');
       localStorage.setItem('dh_user', JSON.stringify(data.user));
       if (data.subscription) {
         localStorage.setItem('dh_sub', JSON.stringify(data.subscription));
@@ -190,6 +198,7 @@ export function AuthProvider({ children }) {
 
       setUser(data.user);
       setSubscription(data.subscription);
+      localStorage.removeItem('dh_signed_out');
       localStorage.setItem('dh_user', JSON.stringify(data.user));
       if (data.subscription) {
         localStorage.setItem('dh_sub', JSON.stringify(data.subscription));
@@ -205,6 +214,10 @@ export function AuthProvider({ children }) {
     setSubscription(null);
     localStorage.removeItem('dh_user');
     localStorage.removeItem('dh_sub');
+    localStorage.setItem('dh_signed_out', 'true');
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   };
 
   const refreshSession = async () => {
