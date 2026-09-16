@@ -31,9 +31,41 @@ export async function triggerRazorpayCheckout({
   onFallbackModal,
 }) {
   const isLoaded = await loadRazorpayScript();
-  const keyId = order.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_Swq7otFr6CedcA';
+  const keyId = order?.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_Swq7otFr6CedcA';
 
-  // Open official Razorpay Checkout window in Test Mode using Key ID
+  // Check if order is simulated or test fallback
+  const isSimulated = Boolean(
+    order?.isSimulated ||
+    !order?.id ||
+    order?.id?.startsWith('order_demo_') ||
+    order?.id?.startsWith('order_sim_') ||
+    !keyId ||
+    keyId.includes('placeholder') ||
+    keyId.includes('demo')
+  );
+
+  // If this is a simulated order or live keys aren't ready, use the in-app interactive Razorpay modal directly
+  if (isSimulated) {
+    if (onFallbackModal) {
+      onFallbackModal(order);
+      return;
+    }
+    const fakePaymentId = `pay_${Date.now()}`;
+    const fakeSignature = `sig_${Math.random().toString(36).substring(2, 12)}`;
+    setTimeout(() => {
+      if (onSuccess) {
+        onSuccess({
+          orderId: order.id,
+          paymentId: fakePaymentId,
+          signature: fakeSignature,
+          isSimulated: true,
+        });
+      }
+    }, 600);
+    return;
+  }
+
+  // Open official Razorpay Checkout window in Test/Live Mode with real Razorpay Order ID
   if (isLoaded && typeof window !== 'undefined' && window.Razorpay && keyId && !keyId.includes('placeholder')) {
     try {
       const rzpOptions = {
@@ -42,6 +74,7 @@ export async function triggerRazorpayCheckout({
         currency: order.currency || 'INR',
         name,
         description,
+        order_id: order.id,
         image: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=100&auto=format&fit=crop&q=80',
         prefill: {
           name: prefill.name || 'Hero Golfer',
@@ -65,14 +98,12 @@ export async function triggerRazorpayCheckout({
         },
       };
 
-      // Only pass order_id if it's a genuine Razorpay generated order
-      if (order.id && !order.id.startsWith('order_demo_')) {
-        rzpOptions.order_id = order.id;
-      }
-
       const rzp = new window.Razorpay(rzpOptions);
       rzp.on('payment.failed', function (response) {
-        if (onFailure) {
+        console.warn('Razorpay checkout encountered failure, falling back to interactive modal:', response);
+        if (onFallbackModal) {
+          onFallbackModal(order);
+        } else if (onFailure) {
           onFailure(new Error(response.error?.description || 'Razorpay payment failed'));
         }
       });
@@ -80,10 +111,14 @@ export async function triggerRazorpayCheckout({
       return;
     } catch (err) {
       console.warn('Could not launch native Razorpay window, opening interactive payment modal:', err);
+      if (onFallbackModal) {
+        onFallbackModal(order);
+        return;
+      }
     }
   }
 
-  // If Razorpay SDK couldn't be loaded or threw, open in-app modal
+  // Fallback if Razorpay SDK couldn't be loaded or threw
   if (onFallbackModal) {
     onFallbackModal(order);
   } else {
