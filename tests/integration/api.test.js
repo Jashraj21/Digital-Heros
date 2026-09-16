@@ -134,4 +134,24 @@ describe('End-to-End System & API Integration Tests', () => {
     expect(scores.activeScores).toHaveLength(5);
     expect(metrics.isEligibleForDraw).toBe(true);
   });
+
+  it('performs phone number OTP authentication with auto-seeded rolling scores and subscription', () => {
+    const { user, subscription } = store.findOrCreatePhoneUser({
+      phone: '+91 98765 43210',
+      fullName: 'Jashraaj Sharma',
+    });
+
+    expect(user).toBeDefined();
+    expect(user.phone).toBe('+91 98765 43210');
+    expect(user.authProvider).toBe('phone');
+    expect(subscription).toBeDefined();
+    expect(subscription.status).toBe('active');
+    expect(subscription.currency).toBe('INR');
+
+    // Verify 5 rolling scores are initialized
+    const scores = store.getUserScores(user.id);
+    const metrics = calculateScoreMetrics(scores.activeScores);
+    expect(scores.activeScores).toHaveLength(5);
+    expect(metrics.isEligibleForDraw).toBe(true);
+  });
 });

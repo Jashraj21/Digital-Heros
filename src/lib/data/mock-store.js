@@ -517,12 +517,42 @@ class DigitalHeroesStore {
         { score: 37, playedAt: '2026-02-20', courseName: 'DLF Golf & Country Club', notes: 'Phone Login Round 5' },
       ];
 
+    } else {
+      user.authProvider = user.authProvider || 'phone';
+    }
+
+    // Ensure 5 rolling scores exist for this user
+    const existingScores = this.getUserScores(user.id);
+    if (!existingScores.activeScores || existingScores.activeScores.length < 5) {
+      const defaultScores = [
+        { score: 38, playedAt: '2026-03-14', courseName: 'Delhi Golf Club', notes: 'Phone Login Round 1' },
+        { score: 41, playedAt: '2026-03-10', courseName: 'Royal Calcutta Golf Club', notes: 'Phone Login Round 2' },
+        { score: 36, playedAt: '2026-03-05', courseName: 'Karnataka Golf Association', notes: 'Phone Login Round 3' },
+        { score: 40, playedAt: '2026-02-28', courseName: 'Bombay Presidency Golf Club', notes: 'Phone Login Round 4' },
+        { score: 37, playedAt: '2026-02-20', courseName: 'DLF Golf & Country Club', notes: 'Phone Login Round 5' },
+      ];
       defaultScores.forEach((s) => {
         this.addScore(user.id, s);
       });
     }
 
-    const subscription = this.getSubscription(user.id);
+    let subscription = this.getSubscription(user.id);
+    if (!subscription) {
+      subscription = {
+        id: `sub-phone-${Date.now()}`,
+        userId: user.id,
+        plan: 'monthly',
+        status: 'active',
+        priceAmount: 1999.0,
+        currency: 'INR',
+        currentPeriodStart: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false,
+        createdAt: new Date().toISOString(),
+      };
+      this.subscriptions.push(subscription);
+    }
+
     return { user, subscription };
   }
 
