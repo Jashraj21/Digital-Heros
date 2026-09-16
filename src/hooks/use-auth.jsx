@@ -12,6 +12,8 @@ const AuthContext = createContext({
   login: async () => {},
   loginAsDemo: async () => {},
   loginWithSocial: async () => {},
+  sendPhoneOtp: async () => {},
+  verifyPhoneOtp: async () => {},
   signup: async () => {},
   logout: () => {},
   refreshSession: () => {},
@@ -285,6 +287,95 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const sendPhoneOtp = async (phone) => {
+    setIsLoading(true);
+    try {
+      const supabase = createClient();
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          phone,
+        });
+        if (!error) {
+          return { success: true, message: `OTP sent to ${phone}` };
+        }
+      } catch (e) {
+        console.warn('Supabase OTP send warning:', e?.message);
+      }
+
+      const res = await fetch('/api/auth/phone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'send_otp', phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+      return data;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyPhoneOtp = async (phone, code, fullName) => {
+    setIsLoading(true);
+    try {
+      const supabase = createClient();
+      try {
+        const { data: sbData, error: sbError } = await supabase.auth.verifyOtp({
+          phone,
+          token: code,
+          type: 'sms',
+        });
+        if (!sbError && sbData?.user) {
+          const u = sbData.user;
+          const formattedUser = {
+            id: u.id,
+            email: u.email || `phone.${phone.replace(/[^0-9]/g, '')}@digitalheroes.co.in`,
+            fullName: fullName || u.user_metadata?.full_name || `Golfer (${phone})`,
+            role: 'user',
+            phone,
+            avatarUrl: u.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(phone)}`,
+          };
+          const formattedSub = {
+            id: `sub-${u.id.substring(0, 8)}`,
+            userId: u.id,
+            plan: 'monthly',
+            status: 'active',
+            priceAmount: 1999.0,
+            currency: 'INR',
+            currentPeriodEnd: '2026-04-01T00:00:00.000Z',
+          };
+          setUser(formattedUser);
+          setSubscription(formattedSub);
+          localStorage.removeItem('dh_signed_out');
+          localStorage.setItem('dh_user', JSON.stringify(formattedUser));
+          localStorage.setItem('dh_sub', JSON.stringify(formattedSub));
+          return formattedUser;
+        }
+      } catch (e) {
+        console.warn('Supabase OTP verify warning:', e?.message);
+      }
+
+      const res = await fetch('/api/auth/phone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify', phone, code, fullName }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'OTP verification failed');
+
+      setUser(data.user);
+      setSubscription(data.subscription);
+      localStorage.removeItem('dh_signed_out');
+      localStorage.setItem('dh_user', JSON.stringify(data.user));
+      if (data.subscription) {
+        localStorage.setItem('dh_sub', JSON.stringify(data.subscription));
+      }
+      return data.user;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const signup = async (signupData) => {
     setIsLoading(true);
     try {
@@ -353,6 +444,8 @@ export function AuthProvider({ children }) {
         login,
         loginAsDemo,
         loginWithSocial,
+        sendPhoneOtp,
+        verifyPhoneOtp,
         signup,
         logout,
         refreshSession,

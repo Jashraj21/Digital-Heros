@@ -8,12 +8,14 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ROUTES } from '@/constants/routes';
-import { Trophy, ShieldCheck, UserCheck, AlertCircle, ArrowRight } from 'lucide-react';
+import { Trophy, ShieldCheck, UserCheck, AlertCircle, ArrowRight, Mail, Smartphone } from 'lucide-react';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
+import { PhoneLoginForm } from '@/components/auth/PhoneLoginForm';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, loginAsDemo } = useAuth();
+  const [authMethod, setAuthMethod] = useState('email'); // 'email' | 'phone'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -60,7 +62,7 @@ export default function LoginPage() {
             </span>
           </Link>
           <h2 className="text-2xl font-black text-white">Welcome Back</h2>
-          <p className="text-xs text-slate-400">Sign in to manage your scores, draws, and charity giving</p>
+          <p className="text-xs text-slate-400">Sign in using Google, Apple, Facebook, Phone OTP, or Email</p>
         </div>
 
         {/* 1-Click Fast Evaluator Switcher Card */}
@@ -105,47 +107,86 @@ export default function LoginPage() {
         <Card className="p-6 border border-slate-800">
           <SocialLoginButtons onError={(err) => setErrorMessage(err)} />
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {errorMessage && (
-              <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{errorMessage}</span>
+          {/* Auth Method Switcher: Email vs Phone OTP */}
+          <div className="flex rounded-xl bg-slate-950/80 p-1 border border-slate-800 mb-5">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMethod('email');
+                setErrorMessage('');
+              }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                authMethod === 'email'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>Email & Password</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMethod('phone');
+                setErrorMessage('');
+              }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                authMethod === 'phone'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>Phone Number OTP</span>
+            </button>
+          </div>
+
+          {errorMessage && (
+            <div className="mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {authMethod === 'phone' ? (
+            <PhoneLoginForm onError={(err) => setErrorMessage(err)} mode="login" />
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
+                />
               </div>
-            )}
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
-              />
-            </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
-              />
-            </div>
-
-            <Button variant="primary" type="submit" size="lg" className="w-full mt-2" isLoading={isLoading}>
-              <span>Sign In</span>
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          </form>
+              <Button variant="primary" type="submit" size="lg" className="w-full mt-2" isLoading={isLoading}>
+                <span>Sign In</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </form>
+          )}
 
           <div className="mt-6 pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
             <span>Don&apos;t have an account yet? </span>
@@ -158,3 +199,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

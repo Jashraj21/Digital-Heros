@@ -10,11 +10,13 @@ import { Badge } from '@/components/ui/Badge';
 import { ROUTES } from '@/constants/routes';
 import { Trophy, Heart, Check, AlertCircle, ArrowRight } from 'lucide-react';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
+import { PhoneLoginForm } from '@/components/auth/PhoneLoginForm';
 
 export default function RegisterPage() {
   const router = useRouter();
   const { signup } = useAuth();
   const [step, setStep] = useState(1); // 1: Info, 2: Charity & Plan
+  const [regMethod, setRegMethod] = useState('email'); // 'email' | 'phone'
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -91,79 +93,118 @@ export default function RegisterPage() {
             {/* STEP 1: Basic Info */}
             {step === 1 && (
               <div className="space-y-4 animate-in fade-in">
-                <SocialLoginButtons onError={(err) => setErrorMessage(err)} />
+                <SocialLoginButtons onError={(err) => setErrorMessage(err)} mode="register" />
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="James MacIntyre"
-                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
-                  />
+                {/* Switcher */}
+                <div className="flex rounded-xl bg-slate-950/80 p-1 border border-slate-800 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRegMethod('email');
+                      setErrorMessage('');
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                      regMethod === 'email'
+                        ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span>Email & Password</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRegMethod('phone');
+                      setErrorMessage('');
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${
+                      regMethod === 'phone'
+                        ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span>Phone Number OTP</span>
+                  </button>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="player@example.com"
-                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
-                  />
-                </div>
+                {regMethod === 'phone' ? (
+                  <PhoneLoginForm onError={(err) => setErrorMessage(err)} mode="register" />
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="James MacIntyre"
+                        className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
-                  />
-                </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="player@example.com"
+                        className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                    Phone Number (Optional)
-                  </label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+44 7700 900123"
-                    className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
-                  />
-                </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
+                      />
+                    </div>
 
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="w-full mt-4"
-                  onClick={() => {
-                    if (!fullName || !email || !password) {
-                      setErrorMessage('Please fill in name, email, and password.');
-                      return;
-                    }
-                    setErrorMessage('');
-                    setStep(2);
-                  }}
-                >
-                  <span>Continue to Charity Selection</span>
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                        Phone Number (Optional)
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+91 98765 43210"
+                        className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
+                      />
+                    </div>
+
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="w-full mt-4"
+                      onClick={() => {
+                        if (!fullName || !email || !password) {
+                          setErrorMessage('Please fill in name, email, and password.');
+                          return;
+                        }
+                        setErrorMessage('');
+                        setStep(2);
+                      }}
+                    >
+                      <span>Continue to Charity Selection</span>
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </>
+                )}
               </div>
             )}
 
