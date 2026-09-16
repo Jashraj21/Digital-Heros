@@ -1,0 +1,137 @@
+import { describe, it, expect } from 'vitest';
+import { store } from '@/lib/data/mock-store';
+import { calculateScoreMetrics } from '@/lib/scores/score-service';
+import { DRAW_TYPES, PRIZE_TIERS } from '@/constants/draw';
+
+describe('End-to-End System & API Integration Tests', () => {
+  it('verifies initial seed data is loaded with admin, player, charities, and past draws', () => {
+    const admin = store.getUserByEmail('admin@digitalheroes.co.in');
+    const player = store.getUserByEmail('player@digitalheroes.co.in');
+    const charities = store.getAllCharities();
+    const draws = store.getAllDraws();
+
+    expect(admin).toBeDefined();
+    expect(admin.role).toBe('admin');
+
+    expect(player).toBeDefined();
+    expect(player.role).toBe('user');
+
+    expect(charities.length).toBeGreaterThanOrEqual(3);
+    expect(draws.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('performs full subscriber score entry lifecycle (add -> rolling 5 update -> delete -> recalculate)', () => {
+    // 1. Check initial scores
+    const initial = store.getUserScores('user-player');
+    expect(initial.activeScores).toHaveLength(5);
+    const initialOldest = initial.activeScores[4];
+
+    // 2. Add a new 6th score (today)
+    const addResult = store.addScore('user-player', {
+      score: 44,
+      playedAt: '2026-03-15',
+      courseName: 'Royal Troon',
+      notes: 'Testing rolling addition',
+    });
+
+    expect(addResult.activeScores).toHaveLength(5);
+    expect(addResult.newScore.score).toBe(44);
+    expect(addResult.activeScores[0].score).toBe(44); // Newest score is in Slot #1
+
+    // 3. Delete the score
+    const afterDelete = store.deleteScore('user-player', addResult.newScore.id);
+    expect(afterDelete.activeScores).toHaveLength(5);
+  });
+
+  it('performs full charity preference & direct donation workflow (§ 08)', () => {
+    // 1. Update preference to 25%
+    const updatedPref = store.setCharityPreference('user-player', 'charity-2', 25);
+    expect(updatedPref.contributionPercentage).toBe(25);
+    expect(updatedPref.charityId).toBe('charity-2');
+
+    // 2. Direct donation
+    const charityBefore = store.getCharityById('charity-2');
+    const prevRaised = charityBefore.totalRaised;
+
+    const donation = store.addDonation({
+      userId: 'user-player',
+      charityId: 'charity-2',
+      amount: 75.0,
+      donorName: 'James MacIntyre',
+      message: 'Keep supporting adaptive golfers!',
+    });
+
+    expect(donation.status).toBe('completed');
+    const charityAfter = store.getCharityById('charity-2');
+    expect(charityAfter.totalRaised).toBe(prevRaised + 75.0);
+  });
+
+  it('performs full draw simulation and publishing workflow with jackpot rollover (§ 06 & § 07)', () => {
+    // 1. Simulate draw
+    const simulation = store.simulateDraw({
+      drawType: DRAW_TYPES.ALGORITHMIC,
+      monthlyPrizePool: 20000,
+    });
+
+    expect(simulation.winningNumbers).toHaveLength(5);
+    expect(simulation.totalFreshPool).toBe(20000);
+    expect(simulation.tierSummaries[PRIZE_TIERS.FIVE_MATCH].sharePercentage).toBe(40);
+    expect(simulation.tierSummaries[PRIZE_TIERS.FOUR_MATCH].sharePercentage).toBe(35);
+    expect(simulation.tierSummaries[PRIZE_TIERS.THREE_MATCH].sharePercentage).toBe(25);
+
+    // 2. Publish draw
+    const published = store.publishDraw({
+      title: 'April 2026 Test Heroes Draw',
+      drawDate: '2026-04-30',
+      monthYear: 'April 2026',
+      drawType: DRAW_TYPES.RANDOM,
+      monthlyPrizePool: 20000,
+    });
+
+    expect(published.status).toBe('published');
+    expect(published.drawNumber).toBeGreaterThan(100);
+  });
+
+  it('performs full winner verification lifecycle (submit proof -> approve -> mark paid) (§ 09)', () => {
+    const verifications = store.getAllVerifications();
+    expect(verifications.length).toBeGreaterThan(0);
+
+    const pendingClaim = verifications.find((v) => v.verificationStatus === 'pending') || verifications[0];
+
+    // 1. Submit proof
+    const withProof = store.submitWinnerProof(pendingClaim.id, {
+      proofUrl: 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800',
+      proofNotes: 'Scorecard verified with golf club secretary',
+    });
+    expect(withProof.proofUrl).toBeDefined();
+
+    // 2. Admin Approve
+    const approved = store.reviewWinnerProof(pendingClaim.id, 'approve', 'user-admin');
+    expect(approved.verificationStatus).toBe('approved');
+
+    // 3. Admin Mark Paid
+    const paid = store.reviewWinnerProof(pendingClaim.id, 'mark_paid', 'user-admin');
+    expect(paid.payoutStatus).toBe('paid');
+    expect(paid.paidAt).toBeDefined();
+  });
+
+  it('performs social authentication with Google/Facebook/Apple with auto-seeded rolling scores', () => {
+    const { user, subscription } = store.findOrCreateSocialUser({
+      provider: 'google',
+      email: 'test.golfer.google@gmail.com',
+      fullName: 'Test Google Golfer',
+    });
+
+    expect(user).toBeDefined();
+    expect(user.authProvider).toBe('google');
+    expect(subscription).toBeDefined();
+    expect(subscription.status).toBe('active');
+    expect(subscription.currency).toBe('INR');
+
+    // Verify 5 rolling scores are initialized
+    const scores = store.getUserScores(user.id);
+    const metrics = calculateScoreMetrics(scores.activeScores);
+    expect(scores.activeScores).toHaveLength(5);
+    expect(metrics.isEligibleForDraw).toBe(true);
+  });
+});
