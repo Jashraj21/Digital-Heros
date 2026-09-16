@@ -146,13 +146,42 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     setIsLoading(true);
     try {
+      const supabase = createClient();
+      
+      // 1. Try real Supabase auth first
+      try {
+        const { data: sbData, error: sbError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+
+        if (!sbError && sbData?.user) {
+          const u = sbData.user;
+          const { data: profile } = await supabase.from('profiles').select('*').eq('id', u.id).maybeSingle();
+          const userObj = {
+            id: u.id,
+            email: u.email,
+            fullName: profile?.full_name || u.user_metadata?.full_name || u.email?.split('@')[0] || 'Golf Player',
+            role: profile?.role || (u.email?.includes('admin') ? 'admin' : 'user'),
+            avatarUrl: profile?.avatar_url || u.user_metadata?.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+          };
+          setUser(userObj);
+          localStorage.removeItem('dh_signed_out');
+          localStorage.setItem('dh_user', JSON.stringify(userObj));
+          return userObj;
+        }
+      } catch (sbErr) {
+        console.warn('Supabase direct login note:', sbErr?.message);
+      }
+
+      // 2. Fallback to API route
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to login');
+      if (!res.ok) throw new Error(data.error || 'Login failed');
 
       setUser(data.user);
       setSubscription(data.subscription);
@@ -214,54 +243,27 @@ export function AuthProvider({ children }) {
   const loginWithSocial = async (provider = 'google') => {
     setIsLoading(true);
     try {
+      const supabase = createClient();
       const provLower = (provider || 'google').toLowerCase();
 
-      // Social profile presets for instant, reliable sign in
-      const socialProfiles = {
-        google: {
-          email: 'alex.walker.golf@gmail.com',
-          fullName: 'Alex Walker (Google)',
-          avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-        },
-        facebook: {
-          email: 'sarah.jenkins.links@facebook.com',
-          fullName: 'Sarah Jenkins (Facebook)',
-          avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-        },
-        apple: {
-          email: 'chris.sterling@icloud.com',
-          fullName: 'Chris Sterling (Apple ID)',
-          avatarUrl: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
-        },
-        github: {
-          email: 'marcus.dev@github.com',
-          fullName: 'Marcus Dev (GitHub)',
-          avatarUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
-        },
-      };
+      // Real Supabase OAuth: Redirect to Google / Facebook / Apple / GitHub
+      if (typeof window !== 'undefined') {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: provLower === 'facebook' ? 'facebook' : provLower === 'apple' ? 'apple' : provLower === 'github' ? 'github' : 'google',
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
 
-      const profile = socialProfiles[provLower] || socialProfiles.google;
-
-      const res = await fetch('/api/auth/social', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider: provLower,
-          ...profile,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Social login failed');
-
-      setUser(data.user);
-      setSubscription(data.subscription);
-      localStorage.removeItem('dh_signed_out');
-      localStorage.setItem('dh_user', JSON.stringify(data.user));
-      if (data.subscription) {
-        localStorage.setItem('dh_sub', JSON.stringify(data.subscription));
+        if (error) throw error;
+        if (data?.url) {
+          window.location.href = data.url;
+          return null;
+        }
       }
-      return data.user;
+    } catch (err) {
+      console.error('Supabase OAuth error:', err);
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -359,6 +361,49 @@ export function AuthProvider({ children }) {
   const signup = async (signupData) => {
     setIsLoading(true);
     try {
+      const supabase = createClient();
+      try {
+        const { data: sbData, error: sbError } = await supabase.auth.signUp({
+          email: signupData.email.trim(),
+          password: signupData.password,
+          options: {
+            data: {
+              full_name: signupData.fullName,
+              phone: signupData.phone,
+            },
+          },
+        });
+
+        if (!sbError && sbData?.user) {
+          const u = sbData.user;
+          const userObj = {
+            id: u.id,
+            email: u.email,
+            fullName: signupData.fullName || u.email?.split('@')[0] || 'Golf Player',
+            role: 'user',
+            phone: signupData.phone,
+            avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+          };
+          const subObj = {
+            id: `sub-${u.id.substring(0, 8)}`,
+            userId: u.id,
+            plan: signupData.plan || 'monthly',
+            status: 'active',
+            priceAmount: signupData.plan === 'yearly' ? 19999.0 : 1999.0,
+            currency: 'INR',
+            currentPeriodEnd: '2026-04-01T00:00:00.000Z',
+          };
+          setUser(userObj);
+          setSubscription(subObj);
+          localStorage.removeItem('dh_signed_out');
+          localStorage.setItem('dh_user', JSON.stringify(userObj));
+          localStorage.setItem('dh_sub', JSON.stringify(subObj));
+          return userObj;
+        }
+      } catch (sbErr) {
+        console.warn('Supabase direct signup note:', sbErr?.message);
+      }
+
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
