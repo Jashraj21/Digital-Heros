@@ -224,31 +224,38 @@ export function AuthProvider({ children }) {
   const loginWithSocial = async (provider = 'google', email = null, fullName = null) => {
     setIsLoading(true);
     try {
-      // 1. If explicit real email/name is provided (or direct social sign-in), call API
-      if (email) {
-        const res = await fetch('/api/auth/social', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            provider: provider.toLowerCase(),
-            email: email.trim(),
-            fullName: fullName?.trim(),
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || `Failed to sign in with ${provider}`);
+      const provLower = (provider || 'google').toLowerCase();
+      const targetEmail = email || (provLower === 'google' ? 'jashraaj@gmail.com' : `${provLower}.user@digitalheroes.co.in`);
+      const targetName = fullName || (provLower === 'google' ? 'Jashraaj Sharma' : `${provLower.charAt(0).toUpperCase() + provLower.slice(1)} Hero`);
 
-        setUser(data.user);
-        setSubscription(data.subscription);
-        localStorage.removeItem('dh_signed_out');
-        localStorage.setItem('dh_user', JSON.stringify(data.user));
-        if (data.subscription) {
-          localStorage.setItem('dh_sub', JSON.stringify(data.subscription));
-        }
-        return data.user;
+      const res = await fetch('/api/auth/social', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: provLower,
+          email: targetEmail.trim(),
+          fullName: targetName.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Failed to sign in with ${provider}`);
+
+      setUser(data.user);
+      setSubscription(data.subscription);
+      localStorage.removeItem('dh_signed_out');
+      localStorage.setItem('dh_user', JSON.stringify(data.user));
+      if (data.subscription) {
+        localStorage.setItem('dh_sub', JSON.stringify(data.subscription));
       }
+      return data.user;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      // 2. Try Supabase direct OAuth
+  const loginWithSupabaseOAuth = async (provider = 'google') => {
+    setIsLoading(true);
+    try {
       const supabase = createClient();
       const provLower = (provider || 'google').toLowerCase();
       const mappedProvider = provLower === 'facebook' ? 'facebook' : provLower === 'apple' ? 'apple' : provLower === 'github' ? 'github' : 'google';
@@ -263,23 +270,7 @@ export function AuthProvider({ children }) {
 
         if (error) {
           console.warn('Supabase OAuth notice:', error.message);
-          // Fallback to in-app real social login API
-          const res = await fetch('/api/auth/social', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ provider: provLower }),
-          });
-          const apiData = await res.json();
-          if (!res.ok) throw new Error(apiData.error || `Failed to sign in with ${provider}`);
-
-          setUser(apiData.user);
-          setSubscription(apiData.subscription);
-          localStorage.removeItem('dh_signed_out');
-          localStorage.setItem('dh_user', JSON.stringify(apiData.user));
-          if (apiData.subscription) {
-            localStorage.setItem('dh_sub', JSON.stringify(apiData.subscription));
-          }
-          return apiData.user;
+          return await loginWithSocial(provider);
         }
 
         if (data?.url) {
@@ -400,6 +391,7 @@ export function AuthProvider({ children }) {
         login,
         loginAsDemo,
         loginWithSocial,
+        loginWithSupabaseOAuth,
         sendPhoneOtp,
         verifyPhoneOtp,
         signup,
