@@ -80,17 +80,23 @@ export default function MyDrawsPage() {
         </div>
 
         {/* User's 5 Numbers */}
-        <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center mb-6">
+        <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center mb-4">
           {userNumbers.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              {userNumbers.map((num, i) => (
-                <div
-                  key={i}
-                  className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center font-black text-lg shadow-md"
-                >
-                  {num}
-                </div>
-              ))}
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {userNumbers.map((num, i) => (
+                  <div
+                    key={i}
+                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/30 text-emerald-300 border border-emerald-500/50 flex items-center justify-center font-black text-xl shadow-lg"
+                  >
+                    {num}
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-center gap-2 text-xs text-emerald-400 font-semibold pt-1">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Auto-Saved & Continuously Active for All Monthly Draws</span>
+              </div>
             </div>
           ) : (
             <p className="text-xs text-slate-400">No active scores found. Log 5 golf rounds to enter.</p>

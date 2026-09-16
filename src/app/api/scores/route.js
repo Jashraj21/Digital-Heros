@@ -22,9 +22,9 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { userId = 'user-player', score, playedAt, courseName, notes } = body;
+    const { userId = 'user-player', score, playedAt, courseName, notes, proofUrl, proofFileName, proofNotes } = body;
 
-    const result = store.addScore(userId, { score, playedAt, courseName, notes });
+    const result = store.addScore(userId, { score, playedAt, courseName, notes, proofUrl, proofFileName, proofNotes });
     const scoreData = store.getUserScores(userId);
     const metrics = calculateScoreMetrics(scoreData.activeScores);
 
@@ -43,11 +43,11 @@ export async function POST(req) {
 export async function PUT(req) {
   try {
     const body = await req.json();
-    const { userId = 'user-player', scoreId, score, playedAt, courseName, notes } = body;
+    const { userId = 'user-player', scoreId, score, playedAt, courseName, notes, proofUrl, proofFileName, proofNotes } = body;
 
     if (!scoreId) return NextResponse.json({ error: 'Score ID is required' }, { status: 400 });
 
-    const scoreData = store.editScore(userId, scoreId, { score, playedAt, courseName, notes });
+    const scoreData = store.editScore(userId, scoreId, { score, playedAt, courseName, notes, proofUrl, proofFileName, proofNotes });
     const metrics = calculateScoreMetrics(scoreData.activeScores);
 
     return NextResponse.json({

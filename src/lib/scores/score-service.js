@@ -90,6 +90,9 @@ export function addScoreWithRollingWindow(newScoreInput, currentScores = []) {
     playedAt: newScoreInput.playedAt,
     courseName: newScoreInput.courseName?.trim() || 'Local Course',
     notes: newScoreInput.notes?.trim() || '',
+    proofUrl: newScoreInput.proofUrl || newScoreInput.scorecardImage || null,
+    proofFileName: newScoreInput.proofFileName || null,
+    proofNotes: newScoreInput.proofNotes || null,
     createdAt: new Date().toISOString(),
   };
 

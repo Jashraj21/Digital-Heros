@@ -137,11 +137,11 @@ const INITIAL_SUBSCRIPTIONS = [
 // Initial Golf Scores (Stableford 1-45, dated)
 const INITIAL_SCORES = [
   // user-player scores (5 active rolling scores + 1 older archived)
-  { id: 'sc-1', userId: 'user-player', score: 38, playedAt: '2026-03-12', courseName: 'Delhi Golf Club', notes: 'Great back nine, 4 birdies.', isRollingActive: true, createdAt: '2026-03-12T18:00:00.000Z' },
-  { id: 'sc-2', userId: 'user-player', score: 42, playedAt: '2026-03-08', courseName: 'Royal Calcutta Golf Club', notes: 'Personal best Stableford of the season!', isRollingActive: true, createdAt: '2026-03-08T17:30:00.000Z' },
-  { id: 'sc-3', userId: 'user-player', score: 35, playedAt: '2026-03-01', courseName: 'Karnataka Golf Association (KGA)', notes: 'Breezy conditions, steady putts.', isRollingActive: true, createdAt: '2026-03-01T16:00:00.000Z' },
-  { id: 'sc-4', userId: 'user-player', score: 39, playedAt: '2026-02-22', courseName: 'Bombay Presidency Golf Club', notes: 'Solid iron play all afternoon.', isRollingActive: true, createdAt: '2026-02-22T15:45:00.000Z' },
-  { id: 'sc-5', userId: 'user-player', score: 36, playedAt: '2026-02-14', courseName: 'DLF Golf & Country Club', notes: 'Clean card, 2 sand saves.', isRollingActive: true, createdAt: '2026-02-14T16:20:00.000Z' },
+  { id: 'sc-1', userId: 'user-player', score: 38, playedAt: '2026-03-12', courseName: 'Delhi Golf Club', notes: 'Great back nine, 4 birdies.', proofUrl: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&auto=format&fit=crop&q=80', proofFileName: 'Scorecard-DGC-Mar12.jpg', isRollingActive: true, createdAt: '2026-03-12T18:00:00.000Z' },
+  { id: 'sc-2', userId: 'user-player', score: 42, playedAt: '2026-03-08', courseName: 'Royal Calcutta Golf Club', notes: 'Personal best Stableford of the season!', proofUrl: 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&auto=format&fit=crop&q=80', proofFileName: 'Handicap-RCGC-Mar08.png', isRollingActive: true, createdAt: '2026-03-08T17:30:00.000Z' },
+  { id: 'sc-3', userId: 'user-player', score: 35, playedAt: '2026-03-01', courseName: 'Karnataka Golf Association (KGA)', notes: 'Breezy conditions, steady putts.', proofUrl: 'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=800&auto=format&fit=crop&q=80', proofFileName: 'WHS-Card-KGA-Mar01.jpg', isRollingActive: true, createdAt: '2026-03-01T16:00:00.000Z' },
+  { id: 'sc-4', userId: 'user-player', score: 39, playedAt: '2026-02-22', courseName: 'Bombay Presidency Golf Club', notes: 'Solid iron play all afternoon.', proofUrl: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&auto=format&fit=crop&q=80', proofFileName: 'BPGC-Score-Feb22.jpg', isRollingActive: true, createdAt: '2026-02-22T15:45:00.000Z' },
+  { id: 'sc-5', userId: 'user-player', score: 36, playedAt: '2026-02-14', courseName: 'DLF Golf & Country Club', notes: 'Clean card, 2 sand saves.', proofUrl: 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&auto=format&fit=crop&q=80', proofFileName: 'DLF-Scorecard-Feb14.png', isRollingActive: true, createdAt: '2026-02-14T16:20:00.000Z' },
   { id: 'sc-0', userId: 'user-player', score: 31, playedAt: '2026-01-30', courseName: 'Jaypee Greens Golf Resort', notes: 'Tricky greens.', isRollingActive: false, createdAt: '2026-01-30T15:00:00.000Z' },
 
   // user-2 scores
@@ -750,6 +750,9 @@ class DigitalHeroesStore {
           playedAt: update.playedAt || s.playedAt,
           courseName: update.courseName || s.courseName,
           notes: update.notes !== undefined ? update.notes : s.notes,
+          proofUrl: update.proofUrl !== undefined ? update.proofUrl : s.proofUrl,
+          proofFileName: update.proofFileName !== undefined ? update.proofFileName : s.proofFileName,
+          proofNotes: update.proofNotes !== undefined ? update.proofNotes : s.proofNotes,
         };
       }
       return s;
