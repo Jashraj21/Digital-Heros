@@ -73,14 +73,14 @@ export function AuthProvider({ children }) {
             setUser(JSON.parse(storedUser));
             if (storedSub) setSubscription(JSON.parse(storedSub));
           }
-        } else if (!isSignedOut) {
-          // Default demo session for initial visit
+          // Default demo session for initial visit - Jashraaj Sharma (Google)
           const defaultUser = {
             id: 'user-player',
-            email: 'player@digitalheroes.co.in',
+            email: 'jashraaj@gmail.com',
             fullName: 'Jashraaj Sharma',
             role: 'user',
-            avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+            authProvider: 'google',
+            avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=jashraaj%40gmail.com',
           };
           const defaultSub = {
             id: 'sub-player',
@@ -196,10 +196,11 @@ export function AuthProvider({ children }) {
     } else {
       demoUser = {
         id: 'user-player',
-        email: 'player@digitalheroes.co.in',
+        email: 'jashraaj@gmail.com',
         fullName: 'Jashraaj Sharma',
         role: 'user',
-        avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+        authProvider: 'google',
+        avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=jashraaj%40gmail.com',
       };
       demoSub = {
         id: 'sub-player',

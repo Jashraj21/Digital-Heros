@@ -27,11 +27,22 @@ const INITIAL_USERS = [
   },
   {
     id: 'user-player',
+    email: 'jashraaj@gmail.com',
+    fullName: 'Jashraaj Sharma',
+    role: 'user',
+    phone: '+91 98123 45678',
+    avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=jashraaj%40gmail.com',
+    authProvider: 'google',
+    createdAt: '2025-02-10T00:00:00.000Z',
+  },
+  {
+    id: 'user-player-dh',
     email: 'player@digitalheroes.co.in',
     fullName: 'Jashraaj Sharma',
     role: 'user',
     phone: '+91 98123 45678',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=jashraaj%40gmail.com',
+    authProvider: 'google',
     createdAt: '2025-02-10T00:00:00.000Z',
   },
   {
