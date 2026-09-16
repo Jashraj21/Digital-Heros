@@ -3,142 +3,155 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { ROUTES } from '@/constants/routes';
-import { X, ArrowRight, ShieldCheck, Sparkles, ExternalLink, Settings, CheckCircle2 } from 'lucide-react';
+import {
+  X,
+  ArrowRight,
+  ShieldCheck,
+  Sparkles,
+  ExternalLink,
+  UserPlus,
+  CheckCircle2,
+  Lock,
+  ChevronRight,
+} from 'lucide-react';
 
 export function SocialLoginButtons({ onError, onSelectProvider, mode = 'login' }) {
   const { loginWithSocial, loginWithSupabaseOAuth } = useAuth();
-  const [loadingProvider, setLoadingProvider] = useState(null);
-  const [activeModalProvider, setActiveModalProvider] = useState(null); // only when user wants custom account
-  const [realEmail, setRealEmail] = useState('');
-  const [realName, setRealName] = useState('');
-  const [modalLoading, setModalLoading] = useState(false);
+  const [isGoogleChooserOpen, setIsGoogleChooserOpen] = useState(false);
+  const [isCustomInputOpen, setIsCustomInputOpen] = useState(false);
+  const [customName, setCustomName] = useState('');
+  const [customEmail, setCustomEmail] = useState('');
+  const [loadingEmail, setLoadingEmail] = useState(null);
+  const [activeProvider, setActiveProvider] = useState(null);
 
-  // 1-Click Instant Social Login
-  const handleDirectSocialLogin = async (provider) => {
+  // Available Google Accounts for instant selection
+  const googleAccounts = [
+    {
+      name: 'Jashraaj Sharma',
+      email: 'jashraaj@gmail.com',
+      avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=jashraaj%40gmail.com',
+      isDefault: true,
+      tag: 'Personal (Primary)',
+    },
+    {
+      name: 'Jashraaj Sharma',
+      email: 'jashraaj.sharma@gmail.com',
+      avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=jashraaj.sharma%40gmail.com',
+      isDefault: false,
+      tag: 'Google Work/Golf',
+    },
+    {
+      name: 'Jashraj Hero',
+      email: 'jashraj21@gmail.com',
+      avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=jashraj21%40gmail.com',
+      isDefault: false,
+      tag: 'GitHub/Google Connected',
+    },
+  ];
+
+  const handleSelectGoogleAccount = async (account) => {
+    setLoadingEmail(account.email);
+    if (onError) onError('');
+
+    try {
+      const user = await loginWithSocial('google', account.email, account.name);
+      if (user) {
+        window.location.href = user.role === 'admin' ? ROUTES.ADMIN : ROUTES.DASHBOARD;
+      }
+    } catch (err) {
+      if (onError) onError(err.message || 'Failed to sign in with Google');
+      setLoadingEmail(null);
+    }
+  };
+
+  const handleCustomSubmit = async (e) => {
+    e.preventDefault();
+    if (!customEmail || !customEmail.includes('@')) {
+      if (onError) onError('Please enter a valid Google email address.');
+      return;
+    }
+
+    setLoadingEmail(customEmail);
+    if (onError) onError('');
+
+    try {
+      const user = await loginWithSocial('google', customEmail.trim(), customName.trim() || undefined);
+      if (user) {
+        window.location.href = user.role === 'admin' ? ROUTES.ADMIN : ROUTES.DASHBOARD;
+      }
+    } catch (err) {
+      if (onError) onError(err.message || 'Failed to sign in with Google');
+      setLoadingEmail(null);
+    }
+  };
+
+  const handleOtherSocialClick = async (provider) => {
     if (onSelectProvider) {
       onSelectProvider(provider);
       return;
     }
 
-    setLoadingProvider(provider);
+    setActiveProvider(provider);
     if (onError) onError('');
 
     try {
-      // Default identity mapping
-      let targetEmail = null;
-      let targetName = null;
-
-      if (provider === 'google') {
-        targetEmail = 'jashraaj@gmail.com';
-        targetName = 'Jashraaj Sharma';
-      } else if (provider === 'apple') {
-        targetEmail = 'jashraaj.apple@digitalheroes.co.in';
-        targetName = 'Jashraaj Sharma';
-      } else if (provider === 'facebook') {
-        targetEmail = 'jashraaj.fb@digitalheroes.co.in';
-        targetName = 'Jashraaj Sharma';
-      } else if (provider === 'github') {
-        targetEmail = 'jashraaj.github@digitalheroes.co.in';
-        targetName = 'Jashraaj Sharma';
-      }
+      let targetEmail = `${provider}.user@digitalheroes.co.in`;
+      let targetName = `Jashraaj Sharma (${provider.toUpperCase()})`;
 
       const user = await loginWithSocial(provider, targetEmail, targetName);
       if (user) {
         window.location.href = user.role === 'admin' ? ROUTES.ADMIN : ROUTES.DASHBOARD;
       }
     } catch (err) {
-      console.error('Social login error:', err);
       if (onError) onError(err.message || `Failed to sign in with ${provider}`);
-      setLoadingProvider(null);
+      setActiveProvider(null);
     }
   };
 
-  const handleCustomModalOpen = (provider) => {
-    setActiveModalProvider(provider);
-    if (provider === 'google') {
-      setRealEmail('jashraaj@gmail.com');
-      setRealName('Jashraaj Sharma');
-    } else {
-      setRealEmail('');
-      setRealName('');
-    }
-  };
-
-  const handleCustomSocialLogin = async (e) => {
-    e.preventDefault();
-    if (!realEmail || !realEmail.includes('@')) {
-      if (onError) onError('Please enter a valid email address.');
-      return;
-    }
-
-    setModalLoading(true);
+  const handleDirectSupabaseOAuth = async () => {
+    setLoadingEmail('oauth');
     if (onError) onError('');
-
     try {
-      const user = await loginWithSocial(activeModalProvider, realEmail.trim(), realName.trim() || undefined);
+      const user = await loginWithSupabaseOAuth('google');
       if (user) {
         window.location.href = user.role === 'admin' ? ROUTES.ADMIN : ROUTES.DASHBOARD;
       }
     } catch (err) {
-      if (onError) onError(err.message || `Failed to sign in with ${activeModalProvider}`);
-      setModalLoading(false);
-    }
-  };
-
-  const handleDirectOAuthRedirect = async () => {
-    setModalLoading(true);
-    if (onError) onError('');
-    try {
-      const user = await loginWithSupabaseOAuth(activeModalProvider);
-      if (user) {
-        window.location.href = user.role === 'admin' ? ROUTES.ADMIN : ROUTES.DASHBOARD;
-      }
-    } catch (err) {
-      if (onError) onError(err.message || `Failed to initiate OAuth redirect for ${activeModalProvider}`);
-      setModalLoading(false);
+      if (onError) onError(err.message || 'Failed to initiate Google OAuth redirect');
+      setLoadingEmail(null);
     }
   };
 
   return (
     <div className="space-y-3">
-      {/* Primary 1-Click Google Button */}
+      {/* Primary Continue with Google Button */}
       <button
         type="button"
-        disabled={Boolean(loadingProvider)}
-        onClick={() => handleDirectSocialLogin('google')}
-        className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl bg-slate-950 hover:bg-slate-800 border-2 border-slate-700 hover:border-emerald-500/60 text-white text-sm font-bold transition-all shadow-lg hover:shadow-emerald-500/10 disabled:opacity-50 active:scale-[0.98] group"
+        onClick={() => setIsGoogleChooserOpen(true)}
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-2xl bg-slate-950 hover:bg-slate-800 border-2 border-slate-700 hover:border-emerald-500/60 text-white text-sm font-bold transition-all shadow-lg hover:shadow-emerald-500/10 active:scale-[0.98] group"
       >
-        {loadingProvider === 'google' ? (
-          <div className="flex items-center gap-2 text-emerald-400">
-            <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
-            <span>Connecting to Google...</span>
-          </div>
-        ) : (
-          <>
-            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-              <path
-                fill="#EA4335"
-                d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.4 8.8 5 12 5z"
-              />
-              <path
-                fill="#4285F4"
-                d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.2-2 .4-2.7L1.6 6.4C.6 8.3 0 10.4 0 12.7s.6 4.4 1.6 6.3l3.7-4.3z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.2 0-5.8-2.4-6.7-5.3L1.6 16.4C3.5 20.2 7.4 23.5 12 23.5z"
-              />
-            </svg>
-            <span>Continue with Google</span>
-            <span className="text-[10px] text-emerald-400 font-normal ml-auto bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-              1-Click
-            </span>
-          </>
-        )}
+        <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+          <path
+            fill="#EA4335"
+            d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.4 8.8 5 12 5z"
+          />
+          <path
+            fill="#4285F4"
+            d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.2-2 .4-2.7L1.6 6.4C.6 8.3 0 10.4 0 12.7s.6 4.4 1.6 6.3l3.7-4.3z"
+          />
+          <path
+            fill="#34A853"
+            d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.2 0-5.8-2.4-6.7-5.3L1.6 16.4C3.5 20.2 7.4 23.5 12 23.5z"
+          />
+        </svg>
+        <span>Continue with Google</span>
+        <span className="text-[10px] text-emerald-400 font-normal ml-auto bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+          Choose Account
+        </span>
       </button>
 
       {/* Grid for Apple, Facebook, GitHub */}
@@ -146,11 +159,11 @@ export function SocialLoginButtons({ onError, onSelectProvider, mode = 'login' }
         {/* Apple */}
         <button
           type="button"
-          disabled={Boolean(loadingProvider)}
-          onClick={() => handleDirectSocialLogin('apple')}
+          disabled={Boolean(activeProvider)}
+          onClick={() => handleOtherSocialClick('apple')}
           className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-700 hover:border-slate-500 text-white text-xs font-semibold transition-all disabled:opacity-50 active:scale-[0.98]"
         >
-          {loadingProvider === 'apple' ? (
+          {activeProvider === 'apple' ? (
             <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
@@ -165,11 +178,11 @@ export function SocialLoginButtons({ onError, onSelectProvider, mode = 'login' }
         {/* Facebook */}
         <button
           type="button"
-          disabled={Boolean(loadingProvider)}
-          onClick={() => handleDirectSocialLogin('facebook')}
+          disabled={Boolean(activeProvider)}
+          onClick={() => handleOtherSocialClick('facebook')}
           className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/50 text-white text-xs font-semibold transition-all disabled:opacity-50 active:scale-[0.98]"
         >
-          {loadingProvider === 'facebook' ? (
+          {activeProvider === 'facebook' ? (
             <div className="w-3.5 h-3.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
@@ -184,11 +197,11 @@ export function SocialLoginButtons({ onError, onSelectProvider, mode = 'login' }
         {/* GitHub */}
         <button
           type="button"
-          disabled={Boolean(loadingProvider)}
-          onClick={() => handleDirectSocialLogin('github')}
+          disabled={Boolean(activeProvider)}
+          onClick={() => handleOtherSocialClick('github')}
           className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-700 hover:border-slate-500 text-white text-xs font-semibold transition-all disabled:opacity-50 active:scale-[0.98]"
         >
-          {loadingProvider === 'github' ? (
+          {activeProvider === 'github' ? (
             <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
@@ -205,110 +218,186 @@ export function SocialLoginButtons({ onError, onSelectProvider, mode = 'login' }
         </button>
       </div>
 
-      {/* Optional Custom Account Switcher */}
-      <div className="flex items-center justify-between text-[11px] text-slate-400 px-1">
-        <span>Connects as <strong className="text-white">Jashraaj Sharma</strong></span>
-        <button
-          type="button"
-          onClick={() => handleCustomModalOpen('google')}
-          className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-medium"
+      {/* Official-Style Google Account Chooser Modal */}
+      {isGoogleChooserOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in"
+          onClick={() => {
+            setIsGoogleChooserOpen(false);
+            setIsCustomInputOpen(false);
+          }}
         >
-          <Settings className="w-3 h-3" />
-          <span>Change Name / Email</span>
-        </button>
-      </div>
+          <div
+            className="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl p-6 sm:p-7 space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsGoogleChooserOpen(false);
+                setIsCustomInputOpen(false);
+              }}
+              className="absolute top-5 right-5 p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-      {/* Optional Custom Profile / Direct OAuth Modal */}
-      {activeModalProvider && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 space-y-5">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black text-white capitalize">
-                    Custom {activeModalProvider} Profile
-                  </h3>
-                  <p className="text-[11px] text-slate-400">
-                    Sign in with custom name & social email
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveModalProvider(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
+            {/* Google Header */}
+            <div className="text-center space-y-1 pt-1">
+              <svg className="w-9 h-9 mx-auto mb-2" viewBox="0 0 24 24">
+                <path
+                  fill="#EA4335"
+                  d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.4 8.8 5 12 5z"
+                />
+                <path
+                  fill="#4285F4"
+                  d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.2-2 .4-2.7L1.6 6.4C.6 8.3 0 10.4 0 12.7s.6 4.4 1.6 6.3l3.7-4.3z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.2 0-5.8-2.4-6.7-5.3L1.6 16.4C3.5 20.2 7.4 23.5 12 23.5z"
+                />
+              </svg>
+              <h3 className="text-xl font-bold text-white tracking-tight">Choose an account</h3>
+              <p className="text-xs text-slate-400">to continue to <strong className="text-white">Digital Heroes</strong></p>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleCustomSocialLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={realName}
-                  onChange={(e) => setRealName(e.target.value)}
-                  placeholder="e.g. Jashraaj Sharma"
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
-                />
+            {/* Account List */}
+            {!isCustomInputOpen ? (
+              <div className="space-y-2">
+                {googleAccounts.map((account, idx) => {
+                  const isLoadingThis = loadingEmail === account.email;
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      disabled={Boolean(loadingEmail)}
+                      onClick={() => handleSelectGoogleAccount(account)}
+                      className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/70 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 transition-all text-left group disabled:opacity-50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <img
+                            src={account.avatar}
+                            alt={account.name}
+                            className="w-10 h-10 rounded-full border border-slate-700 bg-slate-800 object-cover"
+                          />
+                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-white text-sm group-hover:text-emerald-400 transition-colors">
+                              {account.name}
+                            </span>
+                            {account.isDefault && (
+                              <span className="text-[9px] bg-emerald-500/20 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">
+                                Active
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-slate-400 block">{account.email}</span>
+                          <span className="text-[10px] text-slate-500">{account.tag}</span>
+                        </div>
+                      </div>
+
+                      {isLoadingThis ? (
+                        <div className="w-5 h-5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin shrink-0" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors shrink-0" />
+                      )}
+                    </button>
+                  );
+                })}
+
+                {/* Add Another Account Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsCustomInputOpen(true)}
+                  className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800 border border-dashed border-slate-700 hover:border-emerald-400/50 transition-all text-left group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-emerald-400 border border-slate-700">
+                    <UserPlus className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-sm text-slate-300 group-hover:text-white transition-colors block">
+                      Use another Google account
+                    </span>
+                    <span className="text-xs text-slate-500">Sign in with a different Google address</span>
+                  </div>
+                </button>
               </div>
+            ) : (
+              /* Custom Account Input Form */
+              <form onSubmit={handleCustomSubmit} className="space-y-4 animate-in fade-in">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                    Your Full Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={customName}
+                    onChange={(e) => setCustomName(e.target.value)}
+                    placeholder="e.g. Jashraaj Sharma"
+                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-                  Social Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={realEmail}
-                  onChange={(e) => setRealEmail(e.target.value)}
-                  placeholder="name@gmail.com"
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                    Google Email Address
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={customEmail}
+                    onChange={(e) => setCustomEmail(e.target.value)}
+                    placeholder="yourname@gmail.com"
+                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-emerald-400"
+                  />
+                </div>
 
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-300 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-400" />
-                <span>
-                  Profile will be initialized with your real name & 5 rolling golf handicap scores.
-                </span>
-              </div>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomInputOpen(false)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700 transition-colors"
+                  >
+                    Back to Accounts
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={Boolean(loadingEmail)}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
+                  >
+                    {loadingEmail ? (
+                      <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <span>Continue with this account</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
 
-              <button
-                type="submit"
-                disabled={modalLoading}
-                className="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
-              >
-                {modalLoading ? (
-                  <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <span>Sign In as {realName || 'Player'}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Optional Direct Supabase OAuth Trigger */}
-            <div className="pt-2 border-t border-slate-800 text-center">
+            {/* Direct Browser OAuth Trigger */}
+            <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+              <span>Google Account Picker</span>
               <button
                 type="button"
-                onClick={handleDirectOAuthRedirect}
-                disabled={modalLoading}
-                className="text-[11px] text-slate-400 hover:text-emerald-400 inline-flex items-center gap-1 transition-colors"
+                onClick={handleDirectSupabaseOAuth}
+                className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-semibold"
               >
                 <ExternalLink className="w-3 h-3" />
-                <span>Or launch Supabase external {activeModalProvider} OAuth redirect</span>
+                <span>Launch Browser OAuth</span>
               </button>
             </div>
           </div>
