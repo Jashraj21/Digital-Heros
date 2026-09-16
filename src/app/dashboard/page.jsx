@@ -113,15 +113,15 @@ export default function DashboardOverviewPage() {
         <StatCard
           title="Subscription Status"
           value={subscription?.status === 'active' ? 'Active' : 'Inactive'}
-          subtitle={`Plan: ${subscription?.plan === 'yearly' ? 'Annual Champion' : 'Monthly Hero'}`}
+          subtitle={`Renewal: 1st of Next Month • ${subscription?.plan === 'yearly' ? 'Annual (₹19,999/yr)' : 'Monthly (₹1,999/mo)'}`}
           icon={CheckCircle2}
           glowColor="emerald"
         />
 
         <StatCard
-          title="Draw Eligibility"
-          value={scoresData.metrics?.isEligibleForDraw ? 'Qualified' : `${scoresData.activeScores?.length || 0}/5 Rounds`}
-          subtitle="Next Draw: ₹1,50,000 Jackpot"
+          title="Draw Participation"
+          value={scoresData.metrics?.isEligibleForDraw ? 'Qualified (5/5)' : `${scoresData.activeScores?.length || 0}/5 Rounds`}
+          subtitle="Entered in Next Draw: ₹1,50,000 Jackpot"
           icon={Target}
           glowColor="cyan"
         />
@@ -129,7 +129,7 @@ export default function DashboardOverviewPage() {
         <StatCard
           title="Charity Giving"
           value={`${charityData?.preference?.contributionPercentage || 10}%`}
-          subtitle={charityData?.charity?.name ? charityData.charity.name.slice(0, 20) : '10% Minimum'}
+          subtitle={charityData?.charity?.name ? charityData.charity.name.slice(0, 20) : '10% Minimum Ring-Fenced'}
           icon={Heart}
           glowColor="rose"
         />
@@ -137,7 +137,7 @@ export default function DashboardOverviewPage() {
         <StatCard
           title="Total Won"
           value={formatCurrency(totalWon)}
-          subtitle={pendingClaims.length > 0 ? `${pendingClaims.length} Pending Claim` : 'Payouts Clear'}
+          subtitle={pendingClaims.length > 0 ? `${pendingClaims.length} Pending Proof / Payout` : 'Payment Status: Paid ✓'}
           icon={Trophy}
           glowColor="gold"
         />
