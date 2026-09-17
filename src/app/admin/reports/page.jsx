@@ -14,7 +14,10 @@ export default function AdminReportsPage() {
   const [draws, setDraws] = useState([]);
   const [isExporting, setIsExporting] = useState(false);
 
-  useEffect(() => {
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState('');
+
+  const loadData = () => {
     Promise.all([fetch('/api/admin/stats'), fetch('/api/charities'), fetch('/api/draws')]).then(
       async ([sRes, cRes, dRes]) => {
         const sData = await sRes.json();
@@ -26,7 +29,35 @@ export default function AdminReportsPage() {
         setDraws(dData.draws || []);
       }
     );
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
+
+  const handleResetDatabase = async () => {
+    if (!window.confirm('Are you sure you want to clear all orders, donations, and verifications from the database? This will reset all records to a clean slate.')) {
+      return;
+    }
+    setIsResetting(true);
+    setResetSuccess('');
+    try {
+      const res = await fetch('/api/admin/reset', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('dh_orders');
+        }
+        setResetSuccess('Database successfully reset to a clean state!');
+        loadData();
+        setTimeout(() => setResetSuccess(''), 3500);
+      }
+    } catch (err) {
+      console.error('Reset error:', err);
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const handleExportCSV = () => {
     setIsExporting(true);
@@ -71,16 +102,32 @@ export default function AdminReportsPage() {
             Financial & Social Impact Reporting
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Download comprehensive audit reports covering subscriber numbers, charity allocations, and draw prize
-            payouts.
+            Download audit reports and manage platform-wide database records.
           </p>
         </div>
 
-        <Button variant="emerald" size="md" onClick={handleExportCSV} isLoading={isExporting}>
-          <Download className="w-4 h-4 mr-1" />
-          <span>Export Summary (CSV)</span>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="danger"
+            size="md"
+            onClick={handleResetDatabase}
+            isLoading={isResetting}
+          >
+            <span>Reset Database (Clear All)</span>
+          </Button>
+          <Button variant="emerald" size="md" onClick={handleExportCSV} isLoading={isExporting}>
+            <Download className="w-4 h-4 mr-1" />
+            <span>Export Summary (CSV)</span>
+          </Button>
+        </div>
       </div>
+
+      {resetSuccess && (
+        <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-semibold flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-emerald-400" />
+          <span>{resetSuccess}</span>
+        </div>
+      )}
 
       {/* Summary Stat Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -225,251 +225,17 @@ const INITIAL_DRAWS = [
   },
 ];
 
-// Initial Draw Entries
-const INITIAL_DRAW_ENTRIES = [
-  {
-    id: 'entry-player-mar',
-    drawId: 'draw-mar-2026',
-    userId: 'user-player',
-    userName: 'Jashraaj Sharma',
-    userEmail: 'player@digitalheroes.co.in',
-    submittedScores: [38, 42, 35, 39, 36],
-    matchesCount: 5,
-    matchedNumbers: [35, 36, 38, 39, 42],
-    prizeTier: '5_match',
-    prizeAmount: 110000.0,
-    createdAt: '2026-03-01T00:00:00.000Z',
-  },
-  {
-    id: 'entry-user2-mar',
-    drawId: 'draw-mar-2026',
-    userId: 'user-2',
-    userName: 'Priya Nair',
-    userEmail: 'priya.nair@example.com',
-    submittedScores: [38, 42, 35, 39, 28],
-    matchesCount: 4,
-    matchedNumbers: [35, 38, 39, 42],
-    prizeTier: '4_match',
-    prizeAmount: 52500.0,
-    createdAt: '2026-03-01T00:00:00.000Z',
-  },
-  {
-    id: 'entry-user3-mar',
-    drawId: 'draw-mar-2026',
-    userId: 'user-3',
-    userName: 'Rohit Verma',
-    userEmail: 'rohit.verma@example.com',
-    submittedScores: [38, 42, 35, 24, 19],
-    matchesCount: 3,
-    matchedNumbers: [35, 38, 42],
-    prizeTier: '3_match',
-    prizeAmount: 37500.0,
-    createdAt: '2026-03-01T00:00:00.000Z',
-  },
-];
+// Initial Draw Entries (§ 06) - Empty baseline
+const INITIAL_DRAW_ENTRIES = [];
 
-// Initial Winner Verifications in INR (§ 09)
-const INITIAL_VERIFICATIONS = [
-  {
-    id: 'ver-1',
-    drawEntryId: 'entry-player-mar',
-    drawId: 'draw-mar-2026',
-    drawNumber: 102,
-    drawMonthYear: 'March 2026',
-    userId: 'user-player',
-    userName: 'Jashraaj Sharma',
-    userEmail: 'player@digitalheroes.co.in',
-    prizeTier: '5_match',
-    prizeAmount: 110000.0,
-    matchedNumbers: [35, 36, 38, 39, 42],
-    submittedScores: [38, 42, 35, 39, 36],
-    proofUrl: 'https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&auto=format&fit=crop&q=80',
-    proofNotes: 'Official Indian Golf Union (IGU) / WHS Handicap scorecard verified for the 5 rounds.',
-    verificationStatus: 'pending', // Waiting for Admin approval!
-    payoutStatus: 'pending',
-    createdAt: '2026-03-15T13:00:00.000Z',
-    updatedAt: '2026-03-15T13:00:00.000Z',
-  },
-  {
-    id: 'ver-2',
-    drawEntryId: 'entry-user2-mar',
-    drawId: 'draw-mar-2026',
-    drawNumber: 102,
-    drawMonthYear: 'March 2026',
-    userId: 'user-2',
-    userName: 'Priya Nair',
-    userEmail: 'priya.nair@example.com',
-    prizeTier: '4_match',
-    prizeAmount: 52500.0,
-    matchedNumbers: [35, 38, 39, 42],
-    submittedScores: [38, 42, 35, 39, 28],
-    proofUrl: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&auto=format&fit=crop&q=80',
-    proofNotes: 'Club tournament scorecard export attached.',
-    verificationStatus: 'approved',
-    payoutStatus: 'paid',
-    reviewedBy: 'user-admin',
-    reviewedAt: '2026-03-15T14:30:00.000Z',
-    paidAt: '2026-03-15T15:00:00.000Z',
-    createdAt: '2026-03-15T13:10:00.000Z',
-    updatedAt: '2026-03-15T15:00:00.000Z',
-  },
-];
+// Initial Winner Verifications in INR (§ 09) - Empty baseline
+const INITIAL_VERIFICATIONS = [];
 
-// Initial Direct Charity Donations in INR (§ 08)
-const INITIAL_DONATIONS = [
-  {
-    id: 'don-1',
-    userId: 'user-player',
-    donorName: 'Jashraaj Sharma',
-    donorEmail: 'player@digitalheroes.co.in',
-    charityId: 'charity-1',
-    amount: 2500.0,
-    source: 'direct_donation',
-    status: 'completed',
-    message: 'Keep inspiring our junior players!',
-    createdAt: '2026-03-02T10:00:00.000Z',
-  },
-  {
-    id: 'don-2',
-    userId: 'user-2',
-    donorName: 'Priya Nair',
-    donorEmail: 'priya.nair@example.com',
-    charityId: 'charity-2',
-    amount: 5000.0,
-    source: 'direct_donation',
-    status: 'completed',
-    message: 'Thank you for your service and dedication to adaptive golf.',
-    createdAt: '2026-03-05T14:30:00.000Z',
-  },
-];
+// Initial Direct Charity Donations in INR (§ 08) - Empty baseline
+const INITIAL_DONATIONS = [];
 
-// Initial Orders & Transactions in INR (Subscriptions & Donations)
-const INITIAL_ORDERS = [
-  {
-    id: 'ord_dh_sub_101',
-    orderId: 'order_Tctvjtd9FAhJGK',
-    paymentId: 'pay_P19876543210',
-    userId: 'user-player',
-    userName: 'Jashraaj Sharma',
-    userEmail: 'jashraaj@gmail.com',
-    type: 'subscription',
-    plan: 'monthly',
-    itemDescription: 'Monthly Hero Golfer Membership',
-    amount: 1999.0,
-    currency: 'INR',
-    paymentMethod: 'UPI (Google Pay)',
-    charityId: 'charity-1',
-    charityName: 'Fairways for Youth',
-    status: 'completed',
-    createdAt: '2026-03-01T09:30:00.000Z',
-  },
-  {
-    id: 'ord_dh_don_102',
-    orderId: 'order_Tctvjtd9FAhJGL',
-    paymentId: 'pay_P29876543211',
-    userId: 'user-player',
-    userName: 'Jashraaj Sharma',
-    userEmail: 'jashraaj@gmail.com',
-    type: 'donation',
-    itemDescription: 'Direct Donation to Fairways for Youth',
-    amount: 2500.0,
-    currency: 'INR',
-    paymentMethod: 'UPI (PhonePe)',
-    charityId: 'charity-1',
-    charityName: 'Fairways for Youth',
-    status: 'completed',
-    createdAt: '2026-03-02T10:00:00.000Z',
-  },
-  {
-    id: 'ord_dh_sub_103',
-    orderId: 'order_Tctvjtd9FAhJGM',
-    paymentId: 'pay_P39876543212',
-    userId: 'user-2',
-    userName: 'Priya Nair',
-    userEmail: 'priya.nair@example.com',
-    type: 'subscription',
-    plan: 'yearly',
-    itemDescription: 'Annual Champion Golfer Membership (12 Months)',
-    amount: 19999.0,
-    currency: 'INR',
-    paymentMethod: 'Credit Card (HDFC Visa)',
-    charityId: 'charity-2',
-    charityName: 'Hero Wings & Adaptive Golf',
-    status: 'completed',
-    createdAt: '2026-01-01T11:15:00.000Z',
-  },
-  {
-    id: 'ord_dh_don_104',
-    orderId: 'order_Tctvjtd9FAhJGN',
-    paymentId: 'pay_P49876543213',
-    userId: 'user-2',
-    userName: 'Priya Nair',
-    userEmail: 'priya.nair@example.com',
-    type: 'donation',
-    itemDescription: 'Direct Donation to Hero Wings & Adaptive Golf',
-    amount: 5000.0,
-    currency: 'INR',
-    paymentMethod: 'NetBanking (ICICI Bank)',
-    charityId: 'charity-2',
-    charityName: 'Hero Wings & Adaptive Golf',
-    status: 'completed',
-    createdAt: '2026-03-05T14:30:00.000Z',
-  },
-  {
-    id: 'ord_dh_sub_105',
-    orderId: 'order_Tctvjtd9FAhJGO',
-    paymentId: 'pay_P59876543214',
-    userId: 'user-3',
-    userName: 'Rohit Verma',
-    userEmail: 'rohit.verma@example.com',
-    type: 'subscription',
-    plan: 'monthly',
-    itemDescription: 'Monthly Hero Golfer Membership',
-    amount: 1999.0,
-    currency: 'INR',
-    paymentMethod: 'UPI (Paytm)',
-    charityId: 'charity-3',
-    charityName: 'Green Greens Foundation',
-    status: 'completed',
-    createdAt: '2026-03-05T08:45:00.000Z',
-  },
-  {
-    id: 'ord_dh_sub_106',
-    orderId: 'order_Tctvjtd9FAhJGP',
-    paymentId: 'pay_P69876543215',
-    userId: 'user-4',
-    userName: 'Ananya Iyer',
-    userEmail: 'ananya.iyer@example.com',
-    type: 'subscription',
-    plan: 'monthly',
-    itemDescription: 'Monthly Hero Golfer Membership',
-    amount: 1999.0,
-    currency: 'INR',
-    paymentMethod: 'Debit Card (SBI RuPay)',
-    charityId: 'charity-1',
-    charityName: 'Fairways for Youth',
-    status: 'completed',
-    createdAt: '2026-03-01T12:00:00.000Z',
-  },
-  {
-    id: 'ord_dh_sub_107',
-    orderId: 'order_Tctvjtd9FAhJGQ',
-    paymentId: 'pay_P79876543216',
-    userId: 'user-5',
-    userName: 'Arjun Singh',
-    userEmail: 'arjun.singh@example.com',
-    type: 'subscription',
-    plan: 'yearly',
-    itemDescription: 'Annual Champion Golfer Membership',
-    amount: 19999.0,
-    currency: 'INR',
-    paymentMethod: 'Credit Card (Axis Bank)',
-    charityId: 'charity-4',
-    charityName: 'Mind Over Fairway',
-    status: 'completed',
-    createdAt: '2026-01-15T15:20:00.000Z',
-  },
-];
+// Initial Orders & Transactions in INR (Subscriptions & Donations) - Empty baseline
+const INITIAL_ORDERS = [];
 
 /**
  * Singleton State Store for application runtime
@@ -479,13 +245,28 @@ class DigitalHeroesStore {
     this.users = [...INITIAL_USERS];
     this.subscriptions = [...INITIAL_SUBSCRIPTIONS];
     this.scores = [...INITIAL_SCORES];
-    this.charities = [...INITIAL_CHARITIES];
+    this.charities = INITIAL_CHARITIES.map(c => ({ ...c, totalRaised: 0, supporterCount: 0 }));
     this.preferences = [...INITIAL_PREFERENCES];
     this.draws = [...INITIAL_DRAWS];
-    this.drawEntries = [...INITIAL_DRAW_ENTRIES];
-    this.verifications = [...INITIAL_VERIFICATIONS];
-    this.donations = [...INITIAL_DONATIONS];
-    this.orders = [...INITIAL_ORDERS];
+    this.drawEntries = [];
+    this.verifications = [];
+    this.donations = [];
+    this.orders = [];
+  }
+
+  // --- DATABASE RESET METHOD ---
+  resetDatabase() {
+    this.users = [...INITIAL_USERS];
+    this.subscriptions = [...INITIAL_SUBSCRIPTIONS];
+    this.scores = [...INITIAL_SCORES];
+    this.charities = INITIAL_CHARITIES.map(c => ({ ...c, totalRaised: 0, supporterCount: 0 }));
+    this.preferences = [...INITIAL_PREFERENCES];
+    this.draws = [...INITIAL_DRAWS];
+    this.drawEntries = [];
+    this.verifications = [];
+    this.donations = [];
+    this.orders = [];
+    return { success: true, message: 'Database reset to clean state' };
   }
 
   // --- USER METHODS ---
@@ -1187,33 +968,6 @@ class DigitalHeroesStore {
 
       return false;
     });
-
-    // If a registered or newly logged in user has no orders yet, return their baseline active subscription order
-    if (matches.length === 0 && cleanId) {
-      const user = this.getUserById(cleanId);
-      const sub = this.getSubscription(cleanId);
-      const isYearly = sub?.plan === 'yearly';
-      return [
-        {
-          id: `ord_${Date.now()}_init`,
-          orderId: `order_rzp_${cleanId.substring(0, 8)}`,
-          paymentId: `pay_P19876543210`,
-          userId: cleanId,
-          userName: user?.fullName || 'Hero Golfer',
-          userEmail: user?.email || cleanEmail || 'player@digitalheroes.co.in',
-          type: 'subscription',
-          plan: isYearly ? 'yearly' : 'monthly',
-          itemDescription: isYearly ? 'Annual Champion Golfer Membership' : 'Monthly Hero Golfer Membership',
-          amount: isYearly ? 19999.0 : 1999.0,
-          currency: 'INR',
-          paymentMethod: 'UPI (Razorpay Verified)',
-          charityId: 'charity-1',
-          charityName: 'Fairways for Youth',
-          status: 'completed',
-          createdAt: new Date().toISOString(),
-        },
-      ];
-    }
 
     return matches.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
