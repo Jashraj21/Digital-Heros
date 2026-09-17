@@ -30,7 +30,7 @@ export async function triggerRazorpayCheckout({
   onFailure,
 }) {
   const isLoaded = await loadRazorpayScript();
-  const keyId = order?.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_Swq7otFr6CedcA';
+  const keyId = order?.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TctslewIGQetAJ';
   const amountInPaise = order?.amount ? Math.round(Number(order.amount)) : 50000;
   const rawPhone = prefill?.phone || '9876543210';
   const cleanPhone = rawPhone.replace(/\D/g, '').slice(-10) || '9876543210';
