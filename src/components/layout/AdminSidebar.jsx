@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ROUTES } from '@/constants/routes';
+import { useAuth } from '@/hooks/use-auth';
 import { Badge } from '@/components/ui/Badge';
 import {
   ShieldCheck,
@@ -15,10 +16,12 @@ import {
   BarChart3,
   ExternalLink,
   Receipt,
+  LogOut,
 } from 'lucide-react';
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const navItems = [
     { href: ROUTES.ADMIN, label: 'Analytics & Overview', icon: BarChart3 },
@@ -77,11 +80,20 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      {/* Quick Public Link */}
-      <div className="p-3">
+      {/* Admin Actions Footer */}
+      <div className="space-y-2 p-2">
+        <button
+          type="button"
+          onClick={() => logout('/admin/login')}
+          className="w-full flex items-center justify-center gap-2 p-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-bold transition-all"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Sign Out of Admin Console</span>
+        </button>
+
         <Link
           href={ROUTES.HOME}
-          className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+          className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors py-2"
         >
           <span>View Public Platform</span>
           <ExternalLink className="w-3.5 h-3.5" />

@@ -25,6 +25,7 @@ import {
   Printer,
   X,
   Lock,
+  Zap,
 } from 'lucide-react';
 
 export default function UserOrdersPage() {
@@ -238,15 +239,15 @@ export default function UserOrdersPage() {
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 pt-2">
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-emerald-400" />
-                <span>Next Renewal: <strong>1st of Next Month</strong></span>
+                <span>Next Auto-Debit: <strong>1st of Next Month</strong></span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Lock className="w-4 h-4 text-cyan-400" />
                 <span>Rate: <strong>{subscription?.plan === 'yearly' ? '₹19,999 / year' : '₹1,999 / month'}</strong></span>
               </div>
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-amber-400" />
-                <span>Prize Pool Entry: <strong>Active (5 Numbers Locked)</strong></span>
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span>Autopay Status: <strong>{subscription?.isAutopay !== false ? '⚡ Active (UPI / e-Mandate)' : 'Paused'}</strong></span>
               </div>
             </div>
           </div>
@@ -255,24 +256,65 @@ export default function UserOrdersPage() {
             <Button
               variant="primary"
               size="md"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-md shadow-emerald-900/30"
               isLoading={isPaying}
               onClick={() => handleSubscribeRazorpay('monthly')}
             >
-              <CreditCard className="w-4 h-4 mr-1" />
-              Pay Monthly (₹1,999)
+              <Zap className="w-4 h-4 mr-1.5 text-amber-300" />
+              Subscribe Monthly (₹1,999/mo Autopay)
             </Button>
             <Button
               variant="gold"
               size="md"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto font-bold shadow-md shadow-amber-900/30"
               isLoading={isPaying}
               onClick={() => handleSubscribeRazorpay('yearly')}
             >
-              <Sparkles className="w-4 h-4 mr-1" />
-              Pay Annual (₹19,999)
+              <Sparkles className="w-4 h-4 mr-1.5" />
+              Subscribe Annual (₹19,999/yr Autopay)
             </Button>
           </div>
+        </div>
+
+        {/* Autopay Mandate Security Info Bar */}
+        <div className="mt-6 pt-4 border-t border-slate-800/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-slate-300">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>
+              <strong>Razorpay Autopay Protection:</strong> Powered by RBI-compliant UPI Autopay & e-Mandate. Automatic monthly rollover for draw entries. Cancel or pause anytime with 1 click.
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={async () => {
+              const newAutopayState = !(subscription?.isAutopay !== false);
+              try {
+                const res = await fetch('/api/subscriptions/autopay', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    userId: user?.id || 'user-player',
+                    isAutopay: newAutopayState,
+                  }),
+                });
+                const data = await res.json();
+                if (res.ok) {
+                  setNotificationMsg(data.message);
+                  if (refreshSession) refreshSession();
+                }
+              } catch (e) {
+                console.error(e);
+              }
+            }}
+            className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all shrink-0 ${
+              subscription?.isAutopay !== false
+                ? 'border-amber-500/40 text-amber-300 bg-amber-500/10 hover:bg-amber-500/20'
+                : 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20'
+            }`}
+          >
+            {subscription?.isAutopay !== false ? 'Pause Autopay' : '⚡ Enable Autopay'}
+          </button>
         </div>
       </Card>
 

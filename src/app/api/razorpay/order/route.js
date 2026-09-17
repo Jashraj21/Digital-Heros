@@ -5,7 +5,7 @@ import { SUBSCRIPTION_PLANS } from '@/constants/subscription';
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { plan = 'monthly', type = 'subscription', amount, charityId, userId = 'user-player', userEmail } = body;
+    const { plan = 'monthly', type = 'subscription', amount, charityId, userId = 'user-player', userEmail, isAutopay = true } = body;
 
     let finalAmount = 1999;
     if (type === 'subscription') {
@@ -18,6 +18,7 @@ export async function POST(req) {
     const notes = {
       type,
       plan: type === 'subscription' ? plan : undefined,
+      isAutopay: isAutopay ? 'true' : 'false',
       userId,
       userEmail: userEmail || 'player@digitalheroes.co.in',
       charityId: charityId || undefined,
@@ -28,6 +29,8 @@ export async function POST(req) {
       currency: 'INR',
       receipt,
       notes,
+      isAutopay: type === 'subscription' ? isAutopay : false,
+      plan,
     });
 
     return NextResponse.json({

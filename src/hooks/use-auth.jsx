@@ -348,7 +348,8 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = async () => {
+  const logout = async (redirectPath) => {
+    const isCurrentlyOnAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
     try {
       const supabase = createClient();
       await supabase.auth.signOut().catch(() => {});
@@ -361,7 +362,13 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('dh_sub');
     localStorage.setItem('dh_signed_out', 'true');
     if (typeof window !== 'undefined') {
-      window.location.href = '/';
+      if (redirectPath) {
+        window.location.href = redirectPath;
+      } else if (isCurrentlyOnAdmin) {
+        window.location.href = '/admin/login';
+      } else {
+        window.location.href = '/';
+      }
     }
   };
 

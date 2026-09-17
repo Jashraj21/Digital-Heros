@@ -29,9 +29,14 @@ export async function POST(req) {
     }
 
     if (type === 'subscription') {
+      const isYearly = plan === 'yearly';
       const updatedSub = store.updateSubscription(userId, {
         plan,
         status: 'active',
+        isAutopay: true,
+        mandateStatus: 'active',
+        mandateType: 'UPI Autopay / e-Mandate',
+        frequency: isYearly ? 'yearly' : 'monthly',
         cancelAtPeriodEnd: false,
       });
 
@@ -41,20 +46,24 @@ export async function POST(req) {
         userEmail: body.userEmail || 'jashraaj@gmail.com',
         type: 'subscription',
         plan,
-        amount: plan === 'yearly' ? 19999 : 1999,
+        isAutopay: true,
+        mandateStatus: 'active',
+        itemDescription: isYearly ? 'Annual Champion Golfer Membership (Autopay)' : 'Monthly Hero Golfer Membership (Autopay)',
+        amount: isYearly ? 19999 : 1999,
         paymentId,
         orderId,
-        paymentMethod: body.paymentMethod || 'UPI / Razorpay Verified',
+        paymentMethod: body.paymentMethod || 'UPI Autopay / e-Mandate (Razorpay)',
       });
 
       return NextResponse.json({
         success: true,
         verified: true,
         type: 'subscription',
+        isAutopay: true,
         subscription: updatedSub,
         order: orderRecord,
         paymentId,
-        message: `Successfully activated ${plan === 'yearly' ? 'Annual Champion' : 'Monthly Hero'} subscription via Razorpay!`,
+        message: `Successfully activated ${isYearly ? 'Annual Champion' : 'Monthly Hero'} subscription with Razorpay Autopay!`,
       });
     }
 

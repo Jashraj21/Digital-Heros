@@ -169,6 +169,60 @@ export default function SettingsPage() {
             </Button>
           </div>
 
+          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-white block">
+                  Razorpay Autopay (Recurring Mandate)
+                </span>
+                <span className="text-[11px] text-slate-400 block">
+                  {subscription?.isAutopay !== false
+                    ? '⚡ Active: Automatically renews on 1st of month. Draw entries stay active.'
+                    : 'Paused: Autopay is currently off. Subscription will expire at period end.'}
+                </span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                const newAutopayState = !(subscription?.isAutopay !== false);
+                setIsUpdating(true);
+                try {
+                  const res = await fetch('/api/subscriptions/autopay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      userId: user?.id || 'user-player',
+                      isAutopay: newAutopayState,
+                    }),
+                  });
+                  const data = await res.json();
+                  if (res.ok) {
+                    setSuccessMsg(data.message);
+                    if (refreshSession) refreshSession();
+                  }
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  setIsUpdating(false);
+                }
+              }}
+              isLoading={isUpdating}
+              className={`text-xs ${
+                subscription?.isAutopay !== false
+                  ? 'border-amber-500/40 text-amber-300 hover:bg-amber-500/10'
+                  : 'border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10'
+              }`}
+            >
+              {subscription?.isAutopay !== false ? 'Pause Autopay' : '⚡ Enable Autopay'}
+            </Button>
+          </div>
+
           <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-xs text-slate-400">
               <span>Next billing period: </span>

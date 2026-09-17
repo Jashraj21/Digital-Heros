@@ -103,7 +103,7 @@ export function AdminNavbar() {
 
           {/* Admin Logout Button */}
           <button
-            onClick={logout}
+            onClick={() => logout('/admin/login')}
             title="Log out from Admin Console"
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-400 hover:text-rose-400 rounded-xl bg-slate-900 border border-slate-800 hover:border-rose-500/40 hover:bg-rose-500/10 transition-all"
           >
@@ -115,7 +115,7 @@ export function AdminNavbar() {
         {/* Mobile Menu Trigger */}
         <div className="flex lg:hidden items-center gap-2">
           <button
-            onClick={logout}
+            onClick={() => logout('/admin/login')}
             className="p-2 text-slate-400 hover:text-rose-400 rounded-xl bg-slate-900 border border-slate-800"
             title="Sign Out"
           >
@@ -160,7 +160,7 @@ export function AdminNavbar() {
 
           <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
             <button
-              onClick={logout}
+              onClick={() => logout('/admin/login')}
               className="w-full py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-center gap-2"
             >
               <LogOut className="w-4 h-4" />

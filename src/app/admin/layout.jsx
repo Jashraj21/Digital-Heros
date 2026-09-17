@@ -1,9 +1,31 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { AdminNavbar } from '@/components/layout/AdminNavbar';
 import { Footer } from '@/components/layout/Footer';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 
 export default function AdminLayout({ children }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  const isLoginPage = pathname === '/admin/login';
+
+  useEffect(() => {
+    if (!isLoading && !isLoginPage) {
+      if (!user || user.role !== 'admin') {
+        router.replace('/admin/login');
+      }
+    }
+  }, [isLoading, isLoginPage, user, router]);
+
+  if (isLoginPage) {
+    return <div className="min-h-screen bg-slate-950">{children}</div>;
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-950">
       <AdminNavbar />
