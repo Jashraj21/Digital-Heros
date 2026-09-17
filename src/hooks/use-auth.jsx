@@ -73,7 +73,12 @@ export function AuthProvider({ children }) {
             setUser(JSON.parse(storedUser));
             if (storedSub) setSubscription(JSON.parse(storedSub));
           }
-          // Default demo session for initial visit - Jashraaj Sharma (Google)
+          return;
+        }
+
+        // 3. Fallback: if not signed out and not on admin portal, default player demo session
+        const isCurrentlyOnAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+        if (!isSignedOut && !isCurrentlyOnAdmin) {
           const defaultUser = {
             id: 'user-player',
             email: 'jashraaj@gmail.com',
@@ -149,13 +154,13 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, role) => {
     setIsLoading(true);
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ email: email.trim(), password, role }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Login failed');

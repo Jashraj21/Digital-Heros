@@ -26,6 +26,14 @@ export default function AdminLayout({ children }) {
     return <div className="min-h-screen bg-slate-950">{children}</div>;
   }
 
+  if (isLoading || !user || user.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-cyan-500/30 border-t-cyan-400 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-950">
       <AdminNavbar />

@@ -20,12 +20,12 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      const user = await login(email, password);
-      if (user && user.role !== 'admin' && !email.toLowerCase().includes('admin')) {
-        setErrorMessage('Access restricted. Unauthorized account.');
-        return;
+      const user = await login(email, password, 'admin');
+      if (user) {
+        window.location.href = ROUTES.ADMIN;
+      } else {
+        setErrorMessage('Unable to authenticate. Please check your credentials.');
       }
-      window.location.href = ROUTES.ADMIN;
     } catch (err) {
       setErrorMessage(err.message || 'Invalid email or password.');
     } finally {

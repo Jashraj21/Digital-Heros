@@ -400,6 +400,9 @@ class DigitalHeroesStore {
         { score: 37, playedAt: '2026-02-20', courseName: 'DLF Golf & Country Club', notes: 'Round 5' },
       ];
       defaultScores.forEach((s) => this.addScore(user.id, s));
+    } else {
+      if (role) user.role = role;
+      else if (cleanEmail.includes('admin')) user.role = 'admin';
     }
 
     // Ensure 5 rolling scores exist
