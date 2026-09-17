@@ -40,9 +40,30 @@ export default function AdminOrdersPage() {
     try {
       const res = await fetch('/api/orders');
       const data = await res.json();
-      if (data.orders) {
-        setOrders(data.orders);
+      let serverOrders = [];
+      if (data && data.orders) {
+        serverOrders = data.orders;
       }
+
+      let localOrders = [];
+      try {
+        if (typeof window !== 'undefined') {
+          localOrders = JSON.parse(localStorage.getItem('dh_orders') || '[]');
+        }
+      } catch (err) {}
+
+      const combined = [...localOrders, ...serverOrders];
+      const seen = new Set();
+      const unique = [];
+      for (const ord of combined) {
+        const key = ord.id || ord.paymentId || ord.orderId;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(ord);
+        }
+      }
+
+      setOrders(unique);
     } catch (err) {
       console.error('Failed to fetch orders:', err);
     } finally {

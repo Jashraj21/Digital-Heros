@@ -5,9 +5,10 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
+    const email = searchParams.get('email');
 
-    if (userId && userId !== 'all') {
-      const orders = store.getOrdersByUser(userId);
+    if ((userId && userId !== 'all') || email) {
+      const orders = store.getOrdersByUser(userId, email);
       return NextResponse.json({ success: true, orders });
     }
 

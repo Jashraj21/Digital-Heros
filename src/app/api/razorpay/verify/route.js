@@ -37,12 +37,14 @@ export async function POST(req) {
 
       const orderRecord = store.addOrder({
         userId,
+        userName: body.userName || 'Jashraaj Sharma',
+        userEmail: body.userEmail || 'jashraaj@gmail.com',
         type: 'subscription',
         plan,
         amount: plan === 'yearly' ? 19999 : 1999,
         paymentId,
         orderId,
-        paymentMethod: 'Razorpay Verified',
+        paymentMethod: body.paymentMethod || 'UPI / Razorpay Verified',
       });
 
       return NextResponse.json({
@@ -61,19 +63,20 @@ export async function POST(req) {
         userId,
         charityId,
         amount: Number(amount),
-        donorName: donorName || 'Razorpay Supporter',
+        donorName: donorName || body.userName || 'Razorpay Supporter',
         message: message || 'Direct donation via Razorpay',
       });
 
       const orderRecord = store.addOrder({
         userId,
+        userName: donorName || body.userName || 'Jashraaj Sharma',
+        userEmail: body.userEmail || body.donorEmail || 'jashraaj@gmail.com',
         type: 'donation',
         charityId,
         amount: Number(amount),
-        donorName,
         paymentId,
         orderId,
-        paymentMethod: 'Razorpay Verified',
+        paymentMethod: body.paymentMethod || 'UPI / Razorpay Verified',
       });
 
       return NextResponse.json({

@@ -351,7 +351,7 @@ const INITIAL_ORDERS = [
     paymentId: 'pay_P19876543210',
     userId: 'user-player',
     userName: 'Jashraaj Sharma',
-    userEmail: 'player@digitalheroes.co.in',
+    userEmail: 'jashraaj@gmail.com',
     type: 'subscription',
     plan: 'monthly',
     itemDescription: 'Monthly Hero Golfer Membership',
@@ -369,7 +369,7 @@ const INITIAL_ORDERS = [
     paymentId: 'pay_P29876543211',
     userId: 'user-player',
     userName: 'Jashraaj Sharma',
-    userEmail: 'player@digitalheroes.co.in',
+    userEmail: 'jashraaj@gmail.com',
     type: 'donation',
     itemDescription: 'Direct Donation to Fairways for Youth',
     amount: 2500.0,
@@ -1158,11 +1158,64 @@ class DigitalHeroesStore {
     return [...this.orders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  getOrdersByUser(userId) {
+  getOrdersByUser(userId, email) {
     if (!this.orders || this.orders.length === 0) this.orders = [...INITIAL_ORDERS];
-    return this.orders
-      .filter((o) => o.userId === userId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const cleanEmail = (email || '').toLowerCase().trim();
+    const cleanId = (userId || '').trim();
+
+    const matches = this.orders.filter((o) => {
+      // 1. Direct User ID match
+      if (cleanId && o.userId === cleanId) return true;
+
+      // 2. Direct Email match
+      if (cleanEmail && o.userEmail && o.userEmail.toLowerCase() === cleanEmail) return true;
+
+      // 3. User player / demo / Jashraaj aliases match
+      const isPlayerSession =
+        cleanId === 'user-player' ||
+        cleanId === 'user-player-dh' ||
+        cleanEmail.includes('jashraaj') ||
+        cleanEmail.includes('player@');
+
+      if (isPlayerSession) {
+        return (
+          o.userId === 'user-player' ||
+          o.userId === 'user-player-dh' ||
+          (o.userEmail && (o.userEmail.toLowerCase().includes('player@') || o.userEmail.toLowerCase().includes('jashraaj')))
+        );
+      }
+
+      return false;
+    });
+
+    // If a registered or newly logged in user has no orders yet, return their baseline active subscription order
+    if (matches.length === 0 && cleanId) {
+      const user = this.getUserById(cleanId);
+      const sub = this.getSubscription(cleanId);
+      const isYearly = sub?.plan === 'yearly';
+      return [
+        {
+          id: `ord_${Date.now()}_init`,
+          orderId: `order_rzp_${cleanId.substring(0, 8)}`,
+          paymentId: `pay_P19876543210`,
+          userId: cleanId,
+          userName: user?.fullName || 'Hero Golfer',
+          userEmail: user?.email || cleanEmail || 'player@digitalheroes.co.in',
+          type: 'subscription',
+          plan: isYearly ? 'yearly' : 'monthly',
+          itemDescription: isYearly ? 'Annual Champion Golfer Membership' : 'Monthly Hero Golfer Membership',
+          amount: isYearly ? 19999.0 : 1999.0,
+          currency: 'INR',
+          paymentMethod: 'UPI (Razorpay Verified)',
+          charityId: 'charity-1',
+          charityName: 'Fairways for Youth',
+          status: 'completed',
+          createdAt: new Date().toISOString(),
+        },
+      ];
+    }
+
+    return matches.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   addOrder({

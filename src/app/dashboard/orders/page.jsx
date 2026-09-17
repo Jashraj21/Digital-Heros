@@ -39,12 +39,38 @@ export default function UserOrdersPage() {
   const [notificationMsg, setNotificationMsg] = useState('');
 
   const fetchOrders = async () => {
-    if (!user) return;
     try {
       setIsLoading(true);
-      const res = await fetch(`/api/orders?userId=${user.id}`);
+      const uid = user?.id || 'user-player';
+      const uemail = user?.email || 'jashraaj@gmail.com';
+      const res = await fetch(`/api/orders?userId=${encodeURIComponent(uid)}&email=${encodeURIComponent(uemail)}`);
       const data = await res.json();
-      if (data.orders) setOrders(data.orders);
+      
+      let serverOrders = [];
+      if (data && data.orders && data.orders.length > 0) {
+        serverOrders = data.orders;
+      }
+
+      // Merge with browser-stored orders from active checkout tests
+      let localOrders = [];
+      try {
+        if (typeof window !== 'undefined') {
+          localOrders = JSON.parse(localStorage.getItem('dh_orders') || '[]');
+        }
+      } catch (err) {}
+
+      const combined = [...localOrders, ...serverOrders];
+      const seen = new Set();
+      const unique = [];
+      for (const ord of combined) {
+        const key = ord.id || ord.paymentId || ord.orderId;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(ord);
+        }
+      }
+
+      setOrders(unique);
     } catch (e) {
       console.error('Error fetching user orders:', e);
     } finally {
@@ -68,12 +94,21 @@ export default function UserOrdersPage() {
           plan: planKey,
           type: 'subscription',
           userId: user?.id || 'user-player',
+          userName: user?.fullName || 'Jashraaj Sharma',
+          userEmail: user?.email || 'jashraaj@gmail.com',
+          paymentMethod: 'UPI / Razorpay Verified',
         }),
       });
       const verifyData = await verifyRes.json();
       if (verifyRes.ok) {
         setNotificationMsg(`Subscription Activated! Payment verified via Razorpay.`);
         setActiveRzpOrder(null);
+        if (verifyData.order && typeof window !== 'undefined') {
+          try {
+            const current = JSON.parse(localStorage.getItem('dh_orders') || '[]');
+            localStorage.setItem('dh_orders', JSON.stringify([verifyData.order, ...current]));
+          } catch (err) {}
+        }
         if (refreshSession) refreshSession();
         fetchOrders();
       } else {
