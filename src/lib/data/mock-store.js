@@ -1154,11 +1154,13 @@ class DigitalHeroesStore {
 
   // --- ORDERS & PAYMENT TRANSACTIONS (INR Razorpay) ---
   getAllOrders() {
-    return [...(this.orders || [])].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (!this.orders || this.orders.length === 0) this.orders = [...INITIAL_ORDERS];
+    return [...this.orders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   getOrdersByUser(userId) {
-    return (this.orders || [])
+    if (!this.orders || this.orders.length === 0) this.orders = [...INITIAL_ORDERS];
+    return this.orders
       .filter((o) => o.userId === userId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
@@ -1241,5 +1243,8 @@ if (!globalForStore.__digitalHeroesStore) {
   globalForStore.__digitalHeroesStore = new DigitalHeroesStore();
 } else {
   Object.setPrototypeOf(globalForStore.__digitalHeroesStore, DigitalHeroesStore.prototype);
+  if (!globalForStore.__digitalHeroesStore.orders) {
+    globalForStore.__digitalHeroesStore.orders = [...INITIAL_ORDERS];
+  }
 }
 export const store = globalForStore.__digitalHeroesStore;
