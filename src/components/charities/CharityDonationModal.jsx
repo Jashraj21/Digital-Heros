@@ -44,6 +44,12 @@ export function CharityDonationModal({ isOpen, onClose, charity, onSuccess }) {
         setPaymentReceipt(verifyData);
         setSuccess(true);
         setActiveRzpOrder(null);
+        if (verifyData.order && typeof window !== 'undefined') {
+          try {
+            const current = JSON.parse(localStorage.getItem('dh_orders') || '[]');
+            localStorage.setItem('dh_orders', JSON.stringify([verifyData.order, ...current]));
+          } catch (err) {}
+        }
         if (onSuccess) onSuccess(verifyData.donation);
       } else {
         throw new Error(verifyData.error || 'Payment verification failed');

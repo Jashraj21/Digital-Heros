@@ -34,15 +34,24 @@ export function PricingPage() {
           plan: planKey,
           type: 'subscription',
           userId: user?.id || 'user-player',
+          userName: user?.fullName || 'Jashraaj Sharma',
+          userEmail: user?.email || 'jashraaj@gmail.com',
+          paymentMethod: 'UPI / Razorpay Verified',
         }),
       });
       const verifyData = await verifyRes.json();
       if (verifyRes.ok) {
         setPaymentNotification(`Payment Verified! Activated ${planKey === 'yearly' ? 'Annual' : 'Monthly'} Plan.`);
         setActiveRzpOrder(null);
+        if (verifyData.order && typeof window !== 'undefined') {
+          try {
+            const current = JSON.parse(localStorage.getItem('dh_orders') || '[]');
+            localStorage.setItem('dh_orders', JSON.stringify([verifyData.order, ...current]));
+          } catch (err) {}
+        }
         if (refreshSession) refreshSession();
         setTimeout(() => {
-          router.push(`${ROUTES.DASHBOARD}?payment_status=success&plan=${planKey}`);
+          router.push(`${ROUTES.ORDERS}?payment_status=success&plan=${planKey}`);
         }, 1200);
       } else {
         throw new Error(verifyData.error || 'Payment verification failed');

@@ -31,6 +31,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterType, setFilterType] = useState('all'); // 'all' | 'subscription' | 'donation'
+  const [selectedUserFilter, setSelectedUserFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
@@ -75,6 +76,17 @@ export default function AdminOrdersPage() {
     fetchOrders();
   }, []);
 
+  // Compute unique member list for filtering
+  const uniqueMembers = Array.from(
+    new Set(orders.map((o) => o.userEmail || o.userName).filter(Boolean))
+  ).map((emailOrName) => {
+    const matched = orders.find((o) => (o.userEmail || o.userName) === emailOrName);
+    return {
+      name: matched?.userName || emailOrName,
+      email: matched?.userEmail || emailOrName,
+    };
+  });
+
   // Compute metrics
   const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.amount) || 0), 0);
   const subscriptionOrders = orders.filter(o => o.type === 'subscription');
@@ -86,8 +98,13 @@ export default function AdminOrdersPage() {
   // Filtered orders
   const filteredOrders = orders.filter(order => {
     const matchesType = filterType === 'all' || order.type === filterType;
+    const matchesMember =
+      selectedUserFilter === 'all' ||
+      (order.userEmail && order.userEmail.toLowerCase() === selectedUserFilter.toLowerCase()) ||
+      (order.userName && order.userName.toLowerCase() === selectedUserFilter.toLowerCase());
+
     const query = searchQuery.toLowerCase().trim();
-    if (!query) return matchesType;
+    if (!query) return matchesType && matchesMember;
 
     const matchesSearch = 
       (order.userName && order.userName.toLowerCase().includes(query)) ||
@@ -97,7 +114,7 @@ export default function AdminOrdersPage() {
       (order.paymentId && order.paymentId.toLowerCase().includes(query)) ||
       (order.plan && order.plan.toLowerCase().includes(query));
 
-    return matchesType && matchesSearch;
+    return matchesType && matchesMember && matchesSearch;
   });
 
   const handleOpenReceipt = (order) => {
@@ -245,18 +262,50 @@ export default function AdminOrdersPage() {
             </button>
           </div>
 
-          {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <input
-              type="text"
-              placeholder="Search member, email, order ID, or payment ref..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors"
-            />
+          {/* Controls Right: Member Filter & Search */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 max-w-xl">
+            {/* Member select */}
+            <select
+              value={selectedUserFilter}
+              onChange={(e) => setSelectedUserFilter(e.target.value)}
+              className="px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50"
+            >
+              <option value="all">All Members ({orders.length} orders)</option>
+              {uniqueMembers.map((m) => (
+                <option key={m.email} value={m.email}>
+                  {m.name} ({m.email})
+                </option>
+              ))}
+            </select>
+
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search member, email, order ID, or payment ref..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors"
+              />
+            </div>
           </div>
         </div>
+
+        {selectedUserFilter !== 'all' && (
+          <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+            <span className="text-cyan-300 font-semibold flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-cyan-400" />
+              Filtered for Member: <strong>{selectedUserFilter}</strong> (Matches User Dashboard view)
+            </span>
+            <button
+              onClick={() => setSelectedUserFilter('all')}
+              className="text-slate-400 hover:text-white underline text-[11px]"
+            >
+              Clear Member Filter
+            </button>
+          </div>
+        )}
       </Card>
 
       {/* Orders Table */}
