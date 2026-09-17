@@ -93,7 +93,7 @@ export function AdminNavbar() {
             />
             <div className="text-left">
               <span className="text-xs font-bold text-white block">
-                {user?.fullName || 'David Sterling'}
+                {user?.fullName || 'Admin'}
               </span>
               <span className="text-[10px] text-cyan-400 font-semibold uppercase tracking-wider block -mt-0.5">
                 Superadmin Authority
@@ -134,7 +134,7 @@ export function AdminNavbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden px-4 pt-2 pb-6 border-b border-cyan-500/30 bg-slate-950 space-y-4">
           <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-300 flex items-center justify-between">
-            <span>Admin: {user?.fullName || 'David Sterling'}</span>
+            <span>Admin: {user?.fullName || 'Admin'}</span>
             <Badge variant="cyan" size="sm">Superadmin</Badge>
           </div>
 

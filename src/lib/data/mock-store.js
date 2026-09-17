@@ -10,7 +10,7 @@ const INITIAL_USERS = [
   {
     id: 'user-admin',
     email: 'admin@admin.in',
-    fullName: 'David Sterling (Admin)',
+    fullName: 'Admin',
     role: 'admin',
     phone: '+91 98765 43210',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
@@ -19,7 +19,7 @@ const INITIAL_USERS = [
   {
     id: 'user-admin-dh',
     email: 'admin@digitalheroes.co.in',
-    fullName: 'David Sterling (Admin)',
+    fullName: 'Admin',
     role: 'admin',
     phone: '+91 98765 43210',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
@@ -379,7 +379,7 @@ class DigitalHeroesStore {
     let user = this.getUserByEmail(cleanEmail);
     if (!user) {
       const namePart = cleanEmail.split('@')[0].replace(/[._-]/g, ' ');
-      const formattedName = fullName || (namePart.charAt(0).toUpperCase() + namePart.slice(1)) || 'Golfer Hero';
+      const formattedName = fullName || (cleanEmail.includes('admin') || role === 'admin' ? 'Admin' : ((namePart.charAt(0).toUpperCase() + namePart.slice(1)) || 'Golfer Hero'));
       user = {
         id: `user-${Date.now()}`,
         email: cleanEmail,
@@ -427,6 +427,9 @@ class DigitalHeroesStore {
     } else {
       if (role) user.role = role;
       else if (cleanEmail.includes('admin')) user.role = 'admin';
+      if (user.role === 'admin' && (user.fullName.includes('David Sterling') || !user.fullName)) {
+        user.fullName = 'Admin';
+      }
     }
 
     // Ensure 5 rolling scores exist
