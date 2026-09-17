@@ -63,49 +63,6 @@ export default function LoginPage() {
           <p className="text-xs text-slate-400">Sign in with Google, Apple, Facebook, Phone OTP, or Email</p>
         </div>
 
-        {/* 1-Click Fast Evaluator Switcher Card */}
-        <Card className="p-4 border border-slate-800 bg-slate-950/60 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
-              <UserCheck className="w-4 h-4 text-emerald-400" />
-              <span>Selection Test Evaluators</span>
-            </span>
-            <Badge variant="emerald" size="sm">
-              1-Click Login
-            </Badge>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleDemoClick('user')}
-              className="p-3 rounded-xl bg-slate-800/80 hover:bg-emerald-500/20 border border-slate-700 hover:border-emerald-500/40 text-left transition-all"
-            >
-              <div className="flex items-center gap-1.5 text-xs font-bold text-white mb-0.5">
-                <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
-                  <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.4 8.8 5 12 5z" />
-                  <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z" />
-                  <path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.2-2 .4-2.7L1.6 6.4C.6 8.3 0 10.4 0 12.7s.6 4.4 1.6 6.3l3.7-4.3z" />
-                  <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.2 0-5.8-2.4-6.7-5.3L1.6 16.4C3.5 20.2 7.4 23.5 12 23.5z" />
-                </svg>
-                <span>Jashraaj (Google)</span>
-              </div>
-              <p className="text-[10px] text-slate-400">jashraaj@gmail.com</p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleDemoClick('admin')}
-              className="p-3 rounded-xl bg-slate-800/80 hover:bg-cyan-500/20 border border-slate-700 hover:border-cyan-500/40 text-left transition-all"
-            >
-              <div className="flex items-center gap-1.5 text-xs font-bold text-white mb-0.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Admin Demo</span>
-              </div>
-              <p className="text-[10px] text-cyan-300">admin@admin.in (Pass: password)</p>
-            </button>
-          </div>
-        </Card>
-
         {/* Standard Login Form */}
         <Card className="p-6 border border-slate-800">
           <SocialLoginButtons onError={(err) => setErrorMessage(err)} />
