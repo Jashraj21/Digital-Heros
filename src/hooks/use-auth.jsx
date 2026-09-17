@@ -34,50 +34,57 @@ export function AuthProvider({ children }) {
         const isSignedOut = localStorage.getItem('dh_signed_out') === 'true';
         const storedUser = localStorage.getItem('dh_user');
         const storedSub = localStorage.getItem('dh_sub');
+        const isCurrentlyOnAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
 
-        // 1. Check Supabase active session first (for real Google OAuth redirects)
-        const { data: sessionData } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
-        const sbUser = sessionData?.session?.user;
-
-        if (sbUser && !isSignedOut) {
-          const formattedUser = {
-            id: sbUser.id,
-            email: sbUser.email,
-            fullName: sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || sbUser.email?.split('@')[0] || 'Golf Player',
-            role: sbUser.user_metadata?.role || (sbUser.email?.includes('admin') ? 'admin' : 'user'),
-            avatarUrl: sbUser.user_metadata?.avatar_url || sbUser.user_metadata?.picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(sbUser.email || 'golf')}`,
-            authProvider: sbUser.app_metadata?.provider || 'oauth',
-          };
-          const formattedSub = {
-            id: `sub-${sbUser.id.substring(0, 8)}`,
-            userId: sbUser.id,
-            plan: 'monthly',
-            status: 'active',
-            priceAmount: 1999.0,
-            currency: 'INR',
-            currentPeriodStart: '2026-03-01T00:00:00.000Z',
-            currentPeriodEnd: '2026-04-01T00:00:00.000Z',
-          };
-          if (isMounted) {
-            setUser(formattedUser);
-            setSubscription(formattedSub);
-            localStorage.setItem('dh_user', JSON.stringify(formattedUser));
-            localStorage.setItem('dh_sub', JSON.stringify(formattedSub));
+        // 1. If storedUser exists in localStorage, restore that active session directly
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            if (isMounted) {
+              setUser(parsedUser);
+              if (storedSub) setSubscription(JSON.parse(storedSub));
+            }
+            return;
+          } catch (e) {
+            console.error('Failed to parse stored user:', e);
           }
-          return;
         }
 
-        // 2. Check localStorage
-        if (storedUser) {
-          if (isMounted) {
-            setUser(JSON.parse(storedUser));
-            if (storedSub) setSubscription(JSON.parse(storedSub));
+        // 2. Check Supabase active session (for initial Google OAuth callback) if not signed out
+        if (!isSignedOut) {
+          const { data: sessionData } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+          const sbUser = sessionData?.session?.user;
+
+          if (sbUser) {
+            const formattedUser = {
+              id: sbUser.id,
+              email: sbUser.email,
+              fullName: sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || sbUser.email?.split('@')[0] || 'Golf Player',
+              role: sbUser.user_metadata?.role || (sbUser.email?.includes('admin') ? 'admin' : 'user'),
+              avatarUrl: sbUser.user_metadata?.avatar_url || sbUser.user_metadata?.picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(sbUser.email || 'golf')}`,
+              authProvider: sbUser.app_metadata?.provider || 'oauth',
+            };
+            const formattedSub = {
+              id: `sub-${sbUser.id.substring(0, 8)}`,
+              userId: sbUser.id,
+              plan: 'monthly',
+              status: 'active',
+              priceAmount: 1999.0,
+              currency: 'INR',
+              currentPeriodStart: '2026-03-01T00:00:00.000Z',
+              currentPeriodEnd: '2026-04-01T00:00:00.000Z',
+            };
+            if (isMounted) {
+              setUser(formattedUser);
+              setSubscription(formattedSub);
+              localStorage.setItem('dh_user', JSON.stringify(formattedUser));
+              localStorage.setItem('dh_sub', JSON.stringify(formattedSub));
+            }
+            return;
           }
-          return;
         }
 
         // 3. Fallback: if not signed out and not on admin portal, default player demo session
-        const isCurrentlyOnAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
         if (!isSignedOut && !isCurrentlyOnAdmin) {
           const defaultUser = {
             id: 'user-player',
@@ -120,7 +127,17 @@ export function AuthProvider({ children }) {
 
     // Listen to Supabase auth state changes (e.g. after Google OAuth callback)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const storedUser = localStorage.getItem('dh_user');
+        if (storedUser) {
+          try {
+            const parsed = JSON.parse(storedUser);
+            if (parsed && (parsed.role === 'admin' || parsed.authProvider === 'email')) {
+              return;
+            }
+          } catch (e) {}
+        }
+
         const u = session.user;
         const formattedUser = {
           id: u.id,
@@ -157,6 +174,9 @@ export function AuthProvider({ children }) {
   const login = async (email, password, role) => {
     setIsLoading(true);
     try {
+      const supabase = createClient();
+      await supabase.auth.signOut().catch(() => {});
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

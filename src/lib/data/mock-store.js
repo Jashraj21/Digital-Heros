@@ -84,6 +84,30 @@ const INITIAL_USERS = [
 // Initial Subscriptions
 const INITIAL_SUBSCRIPTIONS = [
   {
+    id: 'sub-admin',
+    userId: 'user-admin',
+    plan: 'yearly',
+    status: 'active',
+    priceAmount: 19999.0,
+    currency: 'INR',
+    currentPeriodStart: '2026-01-01T00:00:00.000Z',
+    currentPeriodEnd: '2027-01-01T00:00:00.000Z',
+    cancelAtPeriodEnd: false,
+    createdAt: '2025-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'sub-admin-dh',
+    userId: 'user-admin-dh',
+    plan: 'yearly',
+    status: 'active',
+    priceAmount: 19999.0,
+    currency: 'INR',
+    currentPeriodStart: '2026-01-01T00:00:00.000Z',
+    currentPeriodEnd: '2027-01-01T00:00:00.000Z',
+    cancelAtPeriodEnd: false,
+    createdAt: '2025-01-01T00:00:00.000Z',
+  },
+  {
     id: 'sub-player',
     userId: 'user-player',
     plan: 'monthly',
