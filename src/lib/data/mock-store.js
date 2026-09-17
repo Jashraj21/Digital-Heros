@@ -343,6 +343,134 @@ const INITIAL_DONATIONS = [
   },
 ];
 
+// Initial Orders & Transactions in INR (Subscriptions & Donations)
+const INITIAL_ORDERS = [
+  {
+    id: 'ord_dh_sub_101',
+    orderId: 'order_Tctvjtd9FAhJGK',
+    paymentId: 'pay_P19876543210',
+    userId: 'user-player',
+    userName: 'Jashraaj Sharma',
+    userEmail: 'player@digitalheroes.co.in',
+    type: 'subscription',
+    plan: 'monthly',
+    itemDescription: 'Monthly Hero Golfer Membership',
+    amount: 1999.0,
+    currency: 'INR',
+    paymentMethod: 'UPI (Google Pay)',
+    charityId: 'charity-1',
+    charityName: 'Fairways for Youth',
+    status: 'completed',
+    createdAt: '2026-03-01T09:30:00.000Z',
+  },
+  {
+    id: 'ord_dh_don_102',
+    orderId: 'order_Tctvjtd9FAhJGL',
+    paymentId: 'pay_P29876543211',
+    userId: 'user-player',
+    userName: 'Jashraaj Sharma',
+    userEmail: 'player@digitalheroes.co.in',
+    type: 'donation',
+    itemDescription: 'Direct Donation to Fairways for Youth',
+    amount: 2500.0,
+    currency: 'INR',
+    paymentMethod: 'UPI (PhonePe)',
+    charityId: 'charity-1',
+    charityName: 'Fairways for Youth',
+    status: 'completed',
+    createdAt: '2026-03-02T10:00:00.000Z',
+  },
+  {
+    id: 'ord_dh_sub_103',
+    orderId: 'order_Tctvjtd9FAhJGM',
+    paymentId: 'pay_P39876543212',
+    userId: 'user-2',
+    userName: 'Priya Nair',
+    userEmail: 'priya.nair@example.com',
+    type: 'subscription',
+    plan: 'yearly',
+    itemDescription: 'Annual Champion Golfer Membership (12 Months)',
+    amount: 19999.0,
+    currency: 'INR',
+    paymentMethod: 'Credit Card (HDFC Visa)',
+    charityId: 'charity-2',
+    charityName: 'Hero Wings & Adaptive Golf',
+    status: 'completed',
+    createdAt: '2026-01-01T11:15:00.000Z',
+  },
+  {
+    id: 'ord_dh_don_104',
+    orderId: 'order_Tctvjtd9FAhJGN',
+    paymentId: 'pay_P49876543213',
+    userId: 'user-2',
+    userName: 'Priya Nair',
+    userEmail: 'priya.nair@example.com',
+    type: 'donation',
+    itemDescription: 'Direct Donation to Hero Wings & Adaptive Golf',
+    amount: 5000.0,
+    currency: 'INR',
+    paymentMethod: 'NetBanking (ICICI Bank)',
+    charityId: 'charity-2',
+    charityName: 'Hero Wings & Adaptive Golf',
+    status: 'completed',
+    createdAt: '2026-03-05T14:30:00.000Z',
+  },
+  {
+    id: 'ord_dh_sub_105',
+    orderId: 'order_Tctvjtd9FAhJGO',
+    paymentId: 'pay_P59876543214',
+    userId: 'user-3',
+    userName: 'Rohit Verma',
+    userEmail: 'rohit.verma@example.com',
+    type: 'subscription',
+    plan: 'monthly',
+    itemDescription: 'Monthly Hero Golfer Membership',
+    amount: 1999.0,
+    currency: 'INR',
+    paymentMethod: 'UPI (Paytm)',
+    charityId: 'charity-3',
+    charityName: 'Green Greens Foundation',
+    status: 'completed',
+    createdAt: '2026-03-05T08:45:00.000Z',
+  },
+  {
+    id: 'ord_dh_sub_106',
+    orderId: 'order_Tctvjtd9FAhJGP',
+    paymentId: 'pay_P69876543215',
+    userId: 'user-4',
+    userName: 'Ananya Iyer',
+    userEmail: 'ananya.iyer@example.com',
+    type: 'subscription',
+    plan: 'monthly',
+    itemDescription: 'Monthly Hero Golfer Membership',
+    amount: 1999.0,
+    currency: 'INR',
+    paymentMethod: 'Debit Card (SBI RuPay)',
+    charityId: 'charity-1',
+    charityName: 'Fairways for Youth',
+    status: 'completed',
+    createdAt: '2026-03-01T12:00:00.000Z',
+  },
+  {
+    id: 'ord_dh_sub_107',
+    orderId: 'order_Tctvjtd9FAhJGQ',
+    paymentId: 'pay_P79876543216',
+    userId: 'user-5',
+    userName: 'Arjun Singh',
+    userEmail: 'arjun.singh@example.com',
+    type: 'subscription',
+    plan: 'yearly',
+    itemDescription: 'Annual Champion Golfer Membership',
+    amount: 19999.0,
+    currency: 'INR',
+    paymentMethod: 'Credit Card (Axis Bank)',
+    charityId: 'charity-4',
+    charityName: 'Mind Over Fairway',
+    status: 'completed',
+    createdAt: '2026-01-15T15:20:00.000Z',
+  },
+];
+
 /**
  * Singleton State Store for application runtime
  */
@@ -357,6 +485,7 @@ class DigitalHeroesStore {
     this.drawEntries = [...INITIAL_DRAW_ENTRIES];
     this.verifications = [...INITIAL_VERIFICATIONS];
     this.donations = [...INITIAL_DONATIONS];
+    this.orders = [...INITIAL_ORDERS];
   }
 
   // --- USER METHODS ---
@@ -1021,6 +1150,65 @@ class DigitalHeroesStore {
     const updated = processWinnerVerificationAction(this.verifications[idx], action, adminId, rejectionReason);
     this.verifications[idx] = updated;
     return updated;
+  }
+
+  // --- ORDERS & PAYMENT TRANSACTIONS (INR Razorpay) ---
+  getAllOrders() {
+    return [...(this.orders || [])].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  getOrdersByUser(userId) {
+    return (this.orders || [])
+      .filter((o) => o.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  addOrder({
+    userId = 'user-player',
+    userName,
+    userEmail,
+    type = 'subscription',
+    plan = 'monthly',
+    itemDescription,
+    amount,
+    currency = 'INR',
+    paymentId,
+    orderId,
+    paymentMethod = 'UPI / Razorpay',
+    charityId,
+    charityName,
+    status = 'completed',
+  }) {
+    if (!this.orders) this.orders = [...INITIAL_ORDERS];
+
+    const user = this.getUserById(userId);
+    const charity = charityId ? this.getCharityById(charityId) : null;
+
+    const newOrder = {
+      id: `ord_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      orderId: orderId || `order_${Date.now()}`,
+      paymentId: paymentId || `pay_${Date.now()}`,
+      userId,
+      userName: userName || user?.fullName || 'Hero Golfer',
+      userEmail: userEmail || user?.email || 'player@digitalheroes.co.in',
+      type,
+      plan: type === 'subscription' ? plan : undefined,
+      itemDescription:
+        itemDescription ||
+        (type === 'subscription'
+          ? `${plan === 'yearly' ? 'Annual Champion' : 'Monthly Hero'} Membership`
+          : `Direct Donation to ${charity?.name || charityName || 'Charity'}`),
+      amount: Number(amount) || (plan === 'yearly' ? 19999.0 : 1999.0),
+      currency,
+      paymentMethod,
+      charityId: charityId || undefined,
+      charityName: charity?.name || charityName || undefined,
+      status,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.orders.unshift(newOrder);
+    return newOrder;
   }
 
   // --- PLATFORM ANALYTICS & STATS (§ 11) ---

@@ -16,6 +16,8 @@ import {
   Sparkles,
   ChevronRight,
   Zap,
+  CreditCard,
+  Receipt,
 } from 'lucide-react';
 
 export function DashboardSidebar() {
@@ -28,6 +30,7 @@ export function DashboardSidebar() {
     { href: ROUTES.CHARITY, label: 'Charity Giving', icon: HeartHandshake },
     { href: ROUTES.DRAWS, label: 'Monthly Draws', icon: Trophy },
     { href: ROUTES.WINNINGS, label: 'Winnings & Proof', icon: Award },
+    { href: ROUTES.ORDERS, label: 'Payments & Orders', icon: Receipt, badge: 'INR' },
     { href: ROUTES.SETTINGS, label: 'Settings & Plan', icon: Settings },
   ];
 

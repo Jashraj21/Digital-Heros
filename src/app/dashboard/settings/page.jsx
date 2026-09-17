@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -174,14 +175,22 @@ export default function SettingsPage() {
               <strong className="text-slate-200">1st of Next Month</strong>
             </div>
 
-            <Button
-              variant={subscription?.status === 'active' ? 'danger' : 'primary'}
-              size="sm"
-              onClick={handleStatusToggle}
-              isLoading={isUpdating}
-            >
-              {subscription?.status === 'active' ? 'Cancel Subscription' : 'Reactivate Subscription'}
-            </Button>
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard/orders">
+                <Button variant="outline" size="sm" className="text-xs gap-1.5 border-slate-700 hover:border-cyan-500 hover:text-cyan-400">
+                  <CreditCard className="w-3.5 h-3.5" />
+                  View Orders & Invoices
+                </Button>
+              </Link>
+              <Button
+                variant={subscription?.status === 'active' ? 'danger' : 'primary'}
+                size="sm"
+                onClick={handleStatusToggle}
+                isLoading={isUpdating}
+              >
+                {subscription?.status === 'active' ? 'Cancel Subscription' : 'Reactivate Subscription'}
+              </Button>
+            </div>
           </div>
         </div>
       </Card>

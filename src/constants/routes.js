@@ -15,11 +15,13 @@ export const ROUTES = {
   CHARITY: '/dashboard/charity',
   DRAWS: '/dashboard/draws',
   WINNINGS: '/dashboard/winnings',
+  ORDERS: '/dashboard/orders',
   SETTINGS: '/dashboard/settings',
 
   // Admin
   ADMIN: '/admin',
   ADMIN_LOGIN: '/admin/login',
+  ADMIN_ORDERS: '/admin/orders',
   ADMIN_USERS: '/admin/users',
   ADMIN_SUBSCRIPTIONS: '/admin/subscriptions',
   ADMIN_DRAWS: '/admin/draws',

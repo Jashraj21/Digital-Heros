@@ -14,6 +14,7 @@ import {
   Award,
   BarChart3,
   ExternalLink,
+  Receipt,
 } from 'lucide-react';
 
 export function AdminSidebar() {
@@ -21,6 +22,7 @@ export function AdminSidebar() {
 
   const navItems = [
     { href: ROUTES.ADMIN, label: 'Analytics & Overview', icon: BarChart3 },
+    { href: ROUTES.ADMIN_ORDERS, label: 'Orders & Payments', icon: Receipt, badge: 'INR' },
     { href: ROUTES.ADMIN_USERS, label: '01 User Management', icon: Users, desc: 'Profiles, Scores & Subs' },
     { href: ROUTES.ADMIN_DRAWS, label: '02 Draw Engine', icon: Sparkles, badge: 'Simulation' },
     { href: ROUTES.ADMIN_CHARITIES, label: '03 Charities & Events', icon: HeartHandshake },

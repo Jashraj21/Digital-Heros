@@ -35,11 +35,22 @@ export async function POST(req) {
         cancelAtPeriodEnd: false,
       });
 
+      const orderRecord = store.addOrder({
+        userId,
+        type: 'subscription',
+        plan,
+        amount: plan === 'yearly' ? 19999 : 1999,
+        paymentId,
+        orderId,
+        paymentMethod: 'Razorpay Verified',
+      });
+
       return NextResponse.json({
         success: true,
         verified: true,
         type: 'subscription',
         subscription: updatedSub,
+        order: orderRecord,
         paymentId,
         message: `Successfully activated ${plan === 'yearly' ? 'Annual Champion' : 'Monthly Hero'} subscription via Razorpay!`,
       });
@@ -54,11 +65,23 @@ export async function POST(req) {
         message: message || 'Direct donation via Razorpay',
       });
 
+      const orderRecord = store.addOrder({
+        userId,
+        type: 'donation',
+        charityId,
+        amount: Number(amount),
+        donorName,
+        paymentId,
+        orderId,
+        paymentMethod: 'Razorpay Verified',
+      });
+
       return NextResponse.json({
         success: true,
         verified: true,
         type: 'donation',
         donation,
+        order: orderRecord,
         paymentId,
         message: 'Direct charity donation verified and recorded via Razorpay!',
       });
